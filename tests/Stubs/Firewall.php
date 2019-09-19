@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Makeable\ApiEndpoints\Tests\Stubs;
 
 class Firewall extends Network

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Makeable\ApiEndpoints\Tests\Stubs;
 
 use App\User;

@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 class Endpoint
 {
     public static $queryBuilderGetters = [
-        'chunk', 'each', 'first', 'firstOrFail', 'get', 'getQuery', 'paginate', 'simplePaginate'
+        'chunk', 'each', 'first', 'firstOrFail', 'get', 'getQuery', 'paginate', 'simplePaginate',
     ];
 
     protected $endpoints = [];
@@ -55,11 +55,12 @@ class Endpoint
     {
         $this->resources['includes'] = collect($includes)
             ->filter(function ($constraint, $relation) {
-                if ($constraint instanceof Endpoint) {
+                if ($constraint instanceof self) {
                     $this->endpoints[$relation] = $constraint;
 
                     return false;
                 }
+
                 return true;
             })
             ->pipe(Closure::fromCallable([$this, 'normalizeResources']));
@@ -94,8 +95,8 @@ class Endpoint
             // includes and check if it contains the queried relation
             if ($query instanceof QueryBuilder) {
                 $isIncluding = $query->request()->includes()->first(function ($include) use ($relation) {
-                        return Str::startsWith($include, $relation);
-                    }) !== null;
+                    return Str::startsWith($include, $relation);
+                }) !== null;
             }
             // When dealing with nested relations we will not have the
             // includes() helper at our disposal. Instead we can check
@@ -156,7 +157,7 @@ class Endpoint
 
             $appends = array_merge_recursive($appends, $related->getNamespacedResources('appends'));
             $includes = array_merge_recursive($includes, $related->getNamespacedResources('includes'), [
-                $endpoint->namespace => $endpoint->queuedCalls // Add queued calls as relation constraint
+                $endpoint->namespace => $endpoint->queuedCalls, // Add queued calls as relation constraint
             ]);
         }
 
@@ -182,7 +183,7 @@ class Endpoint
     {
         return collect(Arr::get($this->resources, $resourceType, []))
             ->mapWithKeys(function ($value, $key) {
-                return is_integer($key)
+                return is_int($key)
                     ? [$key => $this->namespaced($value)]
                     : [$this->namespaced($key) => $value];
             })
@@ -222,6 +223,7 @@ class Endpoint
             if (! is_string($constraint)) { // Constraint is given
                 return Arr::wrap($constraint);
             }
+
             return $constraint; // Relation name given without constraint
         });
     }

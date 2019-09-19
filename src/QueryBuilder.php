@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Makeable\ApiEndpoints;
 
 use Closure;
@@ -38,7 +37,6 @@ class QueryBuilder extends SpatieBuilder
                     }
                 }
             });
-
 
         return $this;
     }
@@ -138,8 +136,10 @@ class QueryBuilder extends SpatieBuilder
         if (Str::contains($string, '.')) {
             $parts = explode('.', $string);
             array_pop($parts);
+
             return implode('.', $parts);
         }
+
         return '';
     }
 
@@ -182,6 +182,7 @@ class QueryBuilder extends SpatieBuilder
         if (is_numeric($relation)) {
             [$constraints, $relation] = [[], $constraints];
         }
+
         return [$relation => $constraints];
     }
 }

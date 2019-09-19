@@ -1,14 +1,11 @@
 <?php
 
-
 namespace Makeable\ApiEndpoints\Tests\Unit;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Makeable\ApiEndpoints\Endpoint;
 use Makeable\ApiEndpoints\Tests\Stubs\Network;
-use Makeable\ApiEndpoints\Tests\Stubs\User;
 use Makeable\ApiEndpoints\Tests\Stubs\Server;
 use Makeable\ApiEndpoints\Tests\Stubs\Website;
 use Makeable\ApiEndpoints\Tests\UnitTestCase;
@@ -23,7 +20,7 @@ class EndpointTest extends UnitTestCase
         dd(Endpoint::for(Server::class));
 
         $endpoint = Endpoint::for(Server::class)->allowedIncludes([
-            'websites' => $this->invokable()
+            'websites' => $this->invokable(),
         ]);
 
         $this->expectInvoked();
@@ -39,14 +36,13 @@ class EndpointTest extends UnitTestCase
                 'websites',
                 'network' => Endpoint::for(Network::class)
                     ->allowedAppends(['ports_open'])
-                    ->allowedIncludes(['firewalls'])
+                    ->allowedIncludes(['firewalls']),
             ]);
 
         $query = $this->request($endpoint, [
             'append' => 'servers_count,network.ports_open',
             'include' => 'websites,network.firewalls',
         ]);
-
 
         $this->assertArrayHasKey('websites', $query->getEagerLoads());
         $this->assertArrayHasKey('network', $query->getEagerLoads());
@@ -103,7 +99,7 @@ class EndpointTest extends UnitTestCase
                 'websites', // Regular relation
                 'network' => Endpoint::for(Network::class) // Endpoint
                 ->allowedAppends([
-                    'is_active' => $this->invokable('Unexpected apply of network.is_active')
+                    'is_active' => $this->invokable('Unexpected apply of network.is_active'),
                 ]),
             ])
             ->allowedAppends([ // Root resource
@@ -119,7 +115,7 @@ class EndpointTest extends UnitTestCase
     public function a_constraint_can_be_given_on_a_non_relational_append()
     {
         $endpoint = Endpoint::for(Server::class)->allowedAppends([
-            'websites_count' => $this->invokable()
+            'websites_count' => $this->invokable(),
         ]);
 
         $this->request($endpoint, ['append' => '']); // Should not invoke constraint
@@ -133,7 +129,7 @@ class EndpointTest extends UnitTestCase
     {
         $endpoint = Endpoint::for(Server::class)
             ->allowedIncludes([
-                'websites' => Endpoint::for(Website::class)->tap($this->invokable())
+                'websites' => Endpoint::for(Website::class)->tap($this->invokable()),
             ]);
 
         $this->expectInvoked();

@@ -2,10 +2,8 @@
 
 namespace Makeable\ApiEndpoints\Tests;
 
-use Faker\Generator;
 use Illuminate\Contracts\Console\Kernel;
 use Makeable\ApiEndpoints\Tests\Helpers\TestHelpers;
-use Makeable\ApiEndpoints\Tests\Stubs\User;
 use Spatie\QueryBuilder\QueryBuilderServiceProvider;
 
 class UnitTestCase extends \Illuminate\Foundation\Testing\TestCase
@@ -20,11 +18,11 @@ class UnitTestCase extends \Illuminate\Foundation\Testing\TestCase
         putenv('APP_ENV=testing');
         putenv('APP_DEBUG=true');
 
-        $app = require __DIR__ . '/../vendor/laravel/laravel/bootstrap/app.php';
+        $app = require __DIR__.'/../vendor/laravel/laravel/bootstrap/app.php';
         $app->make(Kernel::class)->bootstrap();
         $app->register(QueryBuilderServiceProvider::class);
         $app->afterResolving('migrator', function ($migrator) {
-            $migrator->path(__DIR__ . '/migrations/');
+            $migrator->path(__DIR__.'/migrations/');
         });
 
         $app['config']->set('database.default', 'sqlite');
