@@ -3,7 +3,9 @@
 namespace Makeable\ApiEndpoints\Tests;
 
 
-class TestCase extends \Illuminate\Foundation\Testing\TestCase
+use Orchestra\Testbench\TestCase as OrchestraTestCase;
+
+class TestCase extends OrchestraTestCase
 {
     public function setUp(): void
     {
@@ -11,31 +13,22 @@ class TestCase extends \Illuminate\Foundation\Testing\TestCase
     }
 
     /**
-     * Creates the application.
+     * Define environment setup.
      *
-     * @return \Illuminate\Foundation\Application
+     * @param \Illuminate\Foundation\Application $app
+     * @return \Illuminate\Foundation\Application|mixed|void
      */
-    public function createApplication()
+    public function getEnvironmentSetUp($app)
     {
         putenv('APP_ENV=testing');
         putenv('APP_DEBUG=true');
-        putenv('CACHE_DRIVER=array');
-        putenv('DB_CONNECTION=sqlite');
-        putenv('DB_DATABASE=:memory:');
 
-        $app = require __DIR__.'/../vendor/laravel/laravel/bootstrap/app.php';
-
-        $app->useEnvironmentPath(__DIR__.'/..');
-        $app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
-//        $app->register(CloudImagesServiceProvider::class);
-//        $app->afterResolving('migrator', function ($migrator) {
-//            $migrator->path(__DIR__.'/migrations/');
-//        });
-
-        // Register facade
-//        $loader = \Illuminate\Foundation\AliasLoader::getInstance();
-//        $loader->alias('CloudImageFacade', CloudImageFacade::class);
-
-        return $app;
+        // Setup default database to use sqlite :memory:
+        $app['config']->set('database.default', 'testing');
+        $app['config']->set('database.connections.testing', [
+            'driver'   => 'sqlite',
+            'database' => ':memory:',
+            'prefix'   => '',
+        ]);
     }
 }
