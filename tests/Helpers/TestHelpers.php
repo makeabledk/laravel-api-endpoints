@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Makeable\ApiEndpoints\Tests\Helpers;
 
 use App\User;
