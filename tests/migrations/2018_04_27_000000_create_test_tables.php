@@ -34,8 +34,8 @@ class CreateTestTables extends Migration
 
         Schema::create('team_user', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer("team_id");
-            $table->integer("user_id");
+            $table->integer('team_id');
+            $table->integer('user_id');
             $table->timestamps();
         });
     }
