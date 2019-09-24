@@ -8,14 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Server extends Model
 {
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
-    public function network()
-    {
-        return $this->hasOne(Network::class);
-    }
-
-    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function owner()
@@ -26,8 +18,8 @@ class Server extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function websites()
+    public function databases()
     {
-        return $this->hasMany(Website::class);
+        return $this->hasMany(Database::class);
     }
 }

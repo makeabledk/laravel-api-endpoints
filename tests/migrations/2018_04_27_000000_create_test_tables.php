@@ -11,29 +11,31 @@ class CreateTestTables extends Migration
      */
     public function up()
     {
-        Schema::create('firewalls', function (Blueprint $table) {
+        Schema::create('databases', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('network_id')->nullable();
-            $table->timestamps();
-        });
-
-        Schema::create('networks', function (Blueprint $table) {
-            $table->increments('id');
-            $table->unsignedInteger('server_id')->nullable();
+            $table->unsignedInteger('server_id');
             $table->timestamps();
         });
 
         Schema::create('servers', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('owner_id')->nullable();
+            $table->unsignedInteger('owner_id');
+            $table->unsignedInteger('team_id')->nullable();
             $table->string('name');
             $table->timestamps();
         });
 
-        Schema::create('websites', function (Blueprint $table) {
+        Schema::create('teams', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('server_id')->nullable();
             $table->string('name');
+            $table->timestamps();
+        });
+
+        Schema::create('team_user', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer("team_id");
+            $table->integer("user_id");
             $table->timestamps();
         });
     }
