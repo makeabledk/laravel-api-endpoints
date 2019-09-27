@@ -4,7 +4,6 @@ namespace Makeable\ApiEndpoints\Tests\Unit;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Makeable\ApiEndpoints\Endpoint;
 use Makeable\ApiEndpoints\Tests\Stubs\Server;
 use Makeable\ApiEndpoints\Tests\Stubs\User;
@@ -17,8 +16,6 @@ class EndpointTest extends UnitTestCase
     /** @test * */
     public function it_accepts_constraints_when_defining_includes()
     {
-//        dd(DB::select("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;"));
-
         $endpoint = Endpoint::for(User::class)->allowedIncludes([
             'servers' => $this->invokable(),
         ]);
