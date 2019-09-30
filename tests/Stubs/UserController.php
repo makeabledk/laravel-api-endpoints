@@ -1,10 +1,9 @@
 <?php
 
-
 namespace Makeable\ApiEndpoints\Tests\Stubs;
 
-use Makeable\ApiEndpoints\Tests\Stubs\Requests\UserRequest;
 use Illuminate\Routing\Controller;
+use Makeable\ApiEndpoints\Tests\Stubs\Requests\UserRequest;
 
 class UserController extends Controller
 {

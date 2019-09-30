@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Makeable\ApiEndpoints\Tests\Stubs\Requests;
 
 use Makeable\ApiEndpoints\BaseEndpointRequest;
@@ -16,7 +15,7 @@ class UserRequest extends BaseEndpointRequest
     {
         return Endpoint::for(User::class)
             ->allowedIncludes([
-                'servers' => ServerRequest::endpoint()
+                'servers' => ServerRequest::endpoint(),
             ]);
     }
 }

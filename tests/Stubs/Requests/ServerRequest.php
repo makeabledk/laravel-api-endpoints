@@ -1,12 +1,11 @@
 <?php
 
-
 namespace Makeable\ApiEndpoints\Tests\Stubs\Requests;
 
-use Spatie\QueryBuilder\Filter;
+use Makeable\ApiEndpoints\BaseEndpointRequest;
 use Makeable\ApiEndpoints\Endpoint;
 use Makeable\ApiEndpoints\Tests\Stubs\Server;
-use Makeable\ApiEndpoints\BaseEndpointRequest;
+use Spatie\QueryBuilder\Filter;
 
 class ServerRequest extends BaseEndpointRequest
 {
@@ -19,13 +18,13 @@ class ServerRequest extends BaseEndpointRequest
             ->allowedAppends([
                 'databases_count' => function ($query) {
                     $query->withCount('databases');
-                }
+                },
             ])
             ->allowedFilters([
                 Filter::custom('favoured', ScopeFilter::make()),
             ])
             ->allowedIncludes([
-                'databases'
+                'databases',
             ])
             ->defaultSort('sort_order');
     }

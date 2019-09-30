@@ -1,11 +1,9 @@
 <?php
 
-
 namespace Makeable\ApiEndpoints\Tests\Stubs;
 
-use Makeable\ApiEndpoints\Tests\Stubs\Requests\ServerRequest;
-use Makeable\ApiEndpoints\Tests\Stubs\Requests\UserRequest;
 use Illuminate\Routing\Controller;
+use Makeable\ApiEndpoints\Tests\Stubs\Requests\ServerRequest;
 
 class ServerController extends Controller
 {
