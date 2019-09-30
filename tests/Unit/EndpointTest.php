@@ -7,13 +7,13 @@ use Illuminate\Http\Request;
 use Makeable\ApiEndpoints\Endpoint;
 use Makeable\ApiEndpoints\Tests\Stubs\Server;
 use Makeable\ApiEndpoints\Tests\Stubs\User;
-use Makeable\ApiEndpoints\Tests\UnitTestCase;
+use Makeable\ApiEndpoints\Tests\TestCase;
 
-class EndpointTest extends UnitTestCase
+class EndpointTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test * */
+    /** @test **/
     public function it_accepts_constraints_when_defining_includes()
     {
         $endpoint = Endpoint::for(User::class)->allowedIncludes([
@@ -95,9 +95,9 @@ class EndpointTest extends UnitTestCase
             ->allowedIncludes([
                 'teams', // Regular relation
                 'servers' => Endpoint::for(Server::class) // Endpoint
-                ->allowedAppends([
-                    'is_active' => $this->invokable('Unexpected apply of server.is_active'),
-                ]),
+                    ->allowedAppends([
+                        'is_active' => $this->invokable('Unexpected apply of server.is_active'),
+                    ]),
             ])
             ->allowedAppends([ // Root resource
                 'servers_count' => $this->invokable('Unexpected apply of servers_count'),
