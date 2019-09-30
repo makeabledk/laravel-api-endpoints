@@ -1,19 +1,16 @@
 <?php
 
-
 namespace Makeable\ApiEndpoints\Tests\Api;
 
-use Illuminate\Routing\Router;
-use Makeable\ApiEndpoints\Tests\TestCase;
-use Makeable\ApiEndpoints\Tests\Stubs\User;
-use Makeable\ApiEndpoints\Tests\Stubs\Server;
-use Illuminate\Foundation\Testing\TestResponse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\TestResponse;
+use Makeable\ApiEndpoints\Tests\Stubs\Server;
+use Makeable\ApiEndpoints\Tests\Stubs\User;
+use Makeable\ApiEndpoints\Tests\TestCase;
 
 class EndpointApiTest extends TestCase
 {
     use RefreshDatabase;
-
 
     /** @test */
     public function it_can_load_user_with_nested_relations()
@@ -39,7 +36,6 @@ class EndpointApiTest extends TestCase
     /** @test */
     public function it_can_filter_favoured_servers()
     {
-
         $this
             ->set($user = factory(User::class)->create())
             ->set($servers = factory(Server::class)
@@ -49,7 +45,7 @@ class EndpointApiTest extends TestCase
             ->set($server = factory(Server::class)
                 ->create([
                     'owner_id' => $user->id,
-                    'is_favoured' => true
+                    'is_favoured' => true,
                 ])
             )
             ->set($servers->push($server))

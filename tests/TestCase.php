@@ -11,10 +11,10 @@ use Makeable\ApiEndpoints\Tests\Stubs\Server;
 use Makeable\ApiEndpoints\Tests\Stubs\ServerController;
 use Makeable\ApiEndpoints\Tests\Stubs\User;
 use Makeable\ApiEndpoints\Tests\Stubs\UserController;
+use Makeable\LaravelFactory\Factory;
+use Makeable\LaravelFactory\FactoryBuilder;
 use Makeable\LaravelFactory\FactoryServiceProvider;
 use Spatie\QueryBuilder\QueryBuilderServiceProvider;
-use Makeable\LaravelFactory\FactoryBuilder;
-use Makeable\LaravelFactory\Factory;
 
 class TestCase extends BaseTestCase
 {
@@ -28,13 +28,13 @@ class TestCase extends BaseTestCase
         putenv('APP_ENV=testing');
         putenv('APP_DEBUG=true');
 
-        $app = require __DIR__ . '/../vendor/laravel/laravel/bootstrap/app.php';
+        $app = require __DIR__.'/../vendor/laravel/laravel/bootstrap/app.php';
         $app->make(Kernel::class)->bootstrap();
         $app->register(QueryBuilderServiceProvider::class);
         $app->register(FactoryServiceProvider::class);
 
         $app->afterResolving('migrator', function ($migrator) {
-            $migrator->path(__DIR__ . '/migrations/');
+            $migrator->path(__DIR__.'/migrations/');
         });
 
         $app['config']->set('database.default', 'sqlite');
@@ -73,7 +73,7 @@ class TestCase extends BaseTestCase
             return [
                 'name' => $faker->name,
                 'email' => $faker->email,
-                'password' => $faker->password
+                'password' => $faker->password,
             ];
         });
 
@@ -83,5 +83,4 @@ class TestCase extends BaseTestCase
             ];
         });
     }
-
 }
