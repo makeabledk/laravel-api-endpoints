@@ -16,12 +16,11 @@ class EndpointApiTest extends TestCase
     public function it_can_load_user_with_nested_relations()
     {
         $this
-            ->set($user = factory(User::class)->create())
-            ->set($server = factory(Server::class)
-                ->with(3, 'databases')
-                ->create(['owner_id' => $user->id])
+            ->set($user = factory(User::class)
+                ->with('servers')
+                ->with(3, 'servers.databases')
+                ->create()
             )
-            ->set($server->users()->attach($user))
             ->getJson('/users?include=servers.databases&append=servers.databases_count')
             ->assertSuccessful()
             ->tap(function (TestResponse $response) {
@@ -37,21 +36,15 @@ class EndpointApiTest extends TestCase
     public function it_can_filter_favoured_servers()
     {
         $this
-            ->set($user = factory(User::class)->create())
-            ->set($servers = factory(Server::class)
-                ->times(3)
-                ->create(['owner_id' => $user->id])
+            ->set($user = factory(User::class)
+                ->with(1, 'servers', ['is_favoured' => true])
+                ->create()
             )
-            ->set($server = factory(Server::class)
-                ->create([
-                    'owner_id' => $user->id,
-                    'is_favoured' => true,
-                ])
+            ->set(factory(Server::class)
+                ->create()
+                ->users()
+                ->attach($user)
             )
-            ->set($servers->push($server))
-            ->set($servers->each(function ($server) use ($user) {
-                $server->users()->attach($user);
-            }))
             ->getJson('/servers?filter[favoured]=true')
             ->assertSuccessful()
             ->assertJsonCount(1)

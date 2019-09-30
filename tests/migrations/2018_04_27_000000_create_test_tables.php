@@ -19,7 +19,6 @@ class CreateTestTables extends Migration
 
         Schema::create('servers', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('owner_id');
             $table->unsignedInteger('team_id')->nullable();
             $table->string('name');
             $table->boolean('is_favoured')->nullable();
