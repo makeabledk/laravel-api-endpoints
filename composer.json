@@ -7,15 +7,15 @@
         }
     },
     "require": {
-        "php": ">=7.1.3",
-        "illuminate/container": "^6.4",
-        "illuminate/database": "^6.4",
-        "illuminate/support": "^6.4",
+        "php": ">=7.2",
+        "illuminate/container": "^5.7|^6.0",
+        "illuminate/database": "^5.7|^6.0",
+        "illuminate/support": "^5.7|^6.0",
         "spatie/laravel-query-builder": "^2.3",
         "makeabledk/laravel-factory-enhanced": "^1.3"
     },
     "require-dev": {
-        "phpunit/phpunit": "^7.5",
+        "phpunit/phpunit": "^8.0",
         "laravel/laravel": "^6.4",
         "mockery/mockery": "^1.2"
     },

@@ -73,7 +73,7 @@ class TestCase extends BaseTestCase
             return [
                 'name' => $faker->name,
                 'email' => $faker->email,
-                'password' => $faker->password,
+                'password' => 'secret',
             ];
         });
 
