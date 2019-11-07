@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class User extends Model
 {
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function servers()
     {
-        return $this->hasMany(Server::class);
+        return $this->belongsToMany(Server::class);
     }
 
     /**

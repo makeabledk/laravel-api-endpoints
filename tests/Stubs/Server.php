@@ -2,17 +2,24 @@
 
 namespace Makeable\ApiEndpoints\Tests\Stubs;
 
-use App\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Server extends Model
 {
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @var array
      */
-    public function owner()
+    protected $casts = [
+        'is_favoured' => 'bool',
+    ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function users()
     {
-        return $this->belongsTo(User::class, 'owner_id');
+        return $this->belongsToMany(User::class);
     }
 
     /**
@@ -21,5 +28,14 @@ class Server extends Model
     public function databases()
     {
         return $this->hasMany(Database::class);
+    }
+
+    /**
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeFavoured($query)
+    {
+        return $query->where('is_favoured', 1);
     }
 }
