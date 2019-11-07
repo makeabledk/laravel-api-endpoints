@@ -1,6 +1,6 @@
 # Contributing
 
-We accept contributions via Pull Requests on [Github](https://github.com/makeabledk/laravel-throttle).
+We accept contributions via Pull Requests on [Github](https://github.com/makeabledk/laravel-api-endpoints).
 
 
 ## Pull Requests

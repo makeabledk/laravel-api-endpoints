@@ -5,7 +5,7 @@ namespace Makeable\ApiEndpoints\Tests\Stubs\Requests;
 use Makeable\ApiEndpoints\BaseEndpointRequest;
 use Makeable\ApiEndpoints\Endpoint;
 use Makeable\ApiEndpoints\Tests\Stubs\Server;
-use Spatie\QueryBuilder\Filter;
+use Spatie\QueryBuilder\AllowedFilter;
 
 class ServerRequest extends BaseEndpointRequest
 {
@@ -21,7 +21,7 @@ class ServerRequest extends BaseEndpointRequest
                 },
             ])
             ->allowedFilters([
-                Filter::custom('favoured', ScopeFilter::make()),
+                AllowedFilter::custom('favoured', ScopeFilter::make()),
             ])
             ->allowedIncludes([
                 'databases',
