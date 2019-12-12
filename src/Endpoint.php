@@ -87,6 +87,9 @@ class Endpoint
     public function whenIncluding($relation, $callable)
     {
         return $this->tap(function ($query) use ($relation, $callable) {
+            // Match Spatie's normalization to snake case
+            $relation = Str::camel($relation);
+
             // The way we check for included relations depends if
             // it is the root endpoint or a nested relationship.
 
@@ -102,7 +105,7 @@ class Endpoint
             // includes() helper at our disposal. Instead we can check
             // on the compiled eager-loads if it has our relation name
             else {
-                $isIncluding = Arr::has($query->getEagerLoads(), Str::camel($relation));
+                $isIncluding = Arr::has($query->getEagerLoads(), $relation);
             }
 
             $query->when($isIncluding, $callable);

@@ -133,6 +133,19 @@ class EndpointTest extends TestCase
         $this->request($endpoint, ['include' => 'servers']);
     }
 
+    /** @test **/
+    public function regression_it_invokes_when_including_on_snake_case()
+    {
+        $endpoint = Endpoint::for(User::class)
+            ->allowedIncludes(['servers', 'servers_count'])
+            ->whenIncluding('servers_count', $this->invokable());
+
+        $this->request($endpoint, ['include' => 'servers']); // Should not invoke constraint
+
+        $this->expectInvoked();
+        $this->request($endpoint, ['include' => 'servers_count']);
+    }
+
     protected function invokable($message = null)
     {
         return function () use ($message) {
