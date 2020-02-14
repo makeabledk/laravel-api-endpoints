@@ -187,8 +187,10 @@ class Endpoint
      * @param  int  $depth
      * @return array
      */
-    protected function resolve($depth = 0)
+    public function resolve($depth = 0)
     {
+        dd('WHAT');
+
         $buffer = [
             [$this->namespace ?? '' => Arr::get($this->buffer, 'calls', [])],
             $this->getNamespacedBufferContents('appends'),
