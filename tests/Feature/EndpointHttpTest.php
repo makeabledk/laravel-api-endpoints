@@ -19,6 +19,7 @@ class EndpointHttpTest extends TestCase
             ->create();
 
         $this
+            ->withoutExceptionHandling()
             ->getJson('/users?include=servers.databases')
             ->assertSuccessful()
             ->assertJsonPath('0.id', $user->id)

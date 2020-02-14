@@ -16,15 +16,13 @@ class Endpoint
         'chunk', 'each', 'first', 'firstOrFail', 'get', 'getQuery', 'paginate', 'simplePaginate',
     ];
 
-    protected $endpoints = [];
-
     protected $modelClass;
 
     protected $namespace;
 
-    protected $resources = [];
+    protected $buffer = [];
 
-    protected $queuedCalls = [];
+    protected $endpoints = [];
 
     /**
      * @param $modelClass
@@ -38,13 +36,42 @@ class Endpoint
     }
 
     /**
+     * @param $method
+     * @param $arguments
+     * @return Endpoint
+     */
+    public function __call($method, $arguments)
+    {
+        // For convenience we'll automatically convert the endpoint
+        // to a query builder instance if we detect the developer
+        // is attempting to get the results of the query.
+        if (in_array($method, static::$queryBuilderGetters)) {
+            return $this->toQueryBuilder()->$method(...$arguments);
+        }
+
+        $this->buffer['calls'][] = function ($query) use ($method, $arguments) {
+            // The Spatie Query Builder provides extra methods such as 'defaultSort', 'allowedFilters' etc.
+            // These methods may be called directly on the endpoint, eg: Endpoint::for(...)->defaultSort('foo').
+
+            // However, these methods do not work when endpoints are nested within each-other as the $query will not be
+            // a Spatie QueryBuilder instance, but a Relation instance. The only thing we can do is to ignore the calls.
+            // If the methods needs to be supported, we'll have to implement nested support for them individually.
+            if ($query instanceof static::$queryBuilderClass || $this->isEloquentMethod($method)) {
+                $query->$method(...$arguments);
+            }
+        };
+
+        return $this;
+    }
+
+    /**
      * @param $appends
      * @return Endpoint
      */
     public function allowedAppends($appends)
     {
-        $this->resources['appends'] = collect($appends)
-            ->pipe(Closure::fromCallable([$this, 'normalizeResources']));
+        $this->buffer['appends'] = collect($appends)
+            ->pipe(Closure::fromCallable([$this, 'buildNamespacedConstraintArrays']));
 
         return $this;
     }
@@ -55,7 +82,7 @@ class Endpoint
      */
     public function allowedIncludes($includes)
     {
-        $this->resources['includes'] = collect($includes)
+        $this->buffer['includes'] = collect($includes)
             ->filter(function ($constraint, $relation) {
                 if ($constraint instanceof self) {
                     $this->endpoints[$relation] = $constraint;
@@ -63,7 +90,7 @@ class Endpoint
                 }
                 return true;
             })
-            ->pipe(Closure::fromCallable([$this, 'normalizeResources']));
+            ->pipe(Closure::fromCallable([$this, 'buildNamespacedConstraintArrays']));
 
         return $this;
     }
@@ -98,8 +125,8 @@ class Endpoint
             // includes and check if it contains the queried relation
             if ($query instanceof QueryBuilder) {
                 $isIncluding = $query->request()->includes()->first(function ($include) use ($relation) {
-                    return Str::startsWith($include, $relation);
-                }) !== null;
+                        return Str::startsWith($include, $relation);
+                    }) !== null;
             }
             // When dealing with nested relations we will not have the
             // includes() helper at our disposal. Instead we can check
@@ -113,45 +140,19 @@ class Endpoint
     }
 
     /**
-     * @param $method
-     * @param $arguments
-     * @return Endpoint
-     */
-    public function __call($method, $arguments)
-    {
-        // For convenience we'll automatically convert the endpoint
-        // to a query builder instance if we detect the developer
-        // is attempting to get the results of the query.
-        if (in_array($method, static::$queryBuilderGetters)) {
-            return $this->toQueryBuilder()->$method(...$arguments);
-        }
-
-        array_push($this->queuedCalls, function ($query) use ($method, $arguments) {
-            // Queued calls are sometimes applied on eloquent relations as well
-            // in which case we don't want to call Spatie specific methods
-            // such as 'defaultSort' or 'allowedXYZ'
-            if ($query instanceof static::$queryBuilderClass || $this->isEloquentMethod($method)) {
-                $query->$method(...$arguments);
-            }
-        });
-
-        return $this;
-    }
-
-    /**
-     * @param Request|null $request
+     * @param  Request|null  $request
      * @return QueryBuilder|\Illuminate\Database\Query\Builder
      */
     public function toQueryBuilder(Request $request = null)
     {
         $builder = call_user_func([static::$queryBuilderClass, 'for'], $this->modelClass, $request);
 
-        [$calls, $appends, $includes] = $this->getCompiledResources();
+        [$calls, $appends, $includes] = $this->resolve();
 
         return $builder
             ->allowedAppends($appends)
             ->allowedIncludes($includes)
-            ->when(! empty($calls), function ($query) use ($calls) {
+            ->tap(function ($query) use ($calls) {
                 foreach ($calls as $call) {
                     $call($query);
                 }
@@ -163,46 +164,44 @@ class Endpoint
     /**
      * @return array
      */
-    protected function getCompiledResources()
+    protected function resolve()
     {
-        $resources = [
-            [$this->namespace ?? '' => $this->queuedCalls], // queued calls
-            $this->getNamespacedResources('appends'), // appends
-            $this->getNamespacedResources('includes'), // includes
+        $buffer = [
+            [$this->namespace ?? '' => Arr::get($this->buffer, 'calls', [])],
+            $this->getNamespacedBufferContents('appends'),
+            $this->getNamespacedBufferContents('includes'),
         ];
 
         foreach ($this->endpoints as $name => $endpoint) {
-            $endpointResources = $endpoint
+            $endpointBuffer = $endpoint
                 ->setNamespace($this->namespaced($name))
-                ->getCompiledResources();
+                ->resolve();
 
-            foreach ($endpointResources as $type => $resource) {
-                $resources[$type] = array_merge_recursive($resources[$type], $resource);
+            foreach ($endpointBuffer as $type => $contents) {
+                $buffer[$type] = array_merge_recursive($buffer[$type], $contents);
             }
         }
 
-        // Finally when everything has been merged recursively, we'll take all relational queued calls
-        // and merge them into their respective 'include constraints'. We'll only keep the root
-        // constraints as 'queued calls', and return is a flat array rather than namespaced.
+        // Finally when everything has been merged recursively, we'll take all relational calls
+        // and merge them into their respective 'includes'. We'll only keep the root calls as
+        // 'buffered calls', and return a flat array rather than namespaced.
         if ($this->namespace === null) {
-            $resources[2] = array_merge_recursive($resources[2], Arr::except($resources[0], ''));
-            $resources[0] = Arr::get($resources[0], '', []);
+            $buffer[2] = array_merge_recursive($buffer[2], Arr::except($buffer[0], ''));
+            $buffer[0] = Arr::get($buffer[0], '', []);
         }
 
-        return $resources;
+        return $buffer;
     }
 
     /**
-     * @param $resourceType
+     * @param  string  $type
      * @return array
      */
-    protected function getNamespacedResources($resourceType)
+    protected function getNamespacedBufferContents($type)
     {
-        return collect(Arr::get($this->resources, $resourceType, []))
+        return collect(Arr::get($this->buffer, $type, []))
             ->mapWithKeys(function ($value, $key) {
-                return is_int($key)
-                    ? [$key => $this->namespaced($value)]
-                    : [$this->namespaced($key) => $value];
+                return [$this->namespaced($key) => $value];
             })
             ->toArray();
     }
@@ -226,23 +225,38 @@ class Endpoint
     protected function namespaced($name)
     {
         return $this->namespace
-            ? $this->namespace.'.'.$name
+            ? $this->namespace . '.' . $name
             : $name;
     }
 
     /**
-     * @param $resources
+     * Normalize a relations array of which some may have constraints and some not.
+     *
+     * Returns collection of the format:
+     *
+     * [
+     *     'posts' => [
+     *         function ($query) { ... },
+     *         [...]
+     *     ].
+     *     'posts.comments' => [
+     *         function ($query) { ... }
+     *     ]
+     * ]
+     *
+     * @param array $relations
      * @return \Illuminate\Support\Collection
      */
-    protected function normalizeResources($resources)
+    protected function buildNamespacedConstraintArrays($relations)
     {
-        return collect($resources)->mapWithKeys(function ($constraint, $relation) {
-            // We'll ensure that a resource is always queued with a constraint
+        return collect($relations)->mapWithKeys(function ($constraint, $relation) {
+            // We'll ensure that a relation is always buffered with a constraint
             // - even when none was given, eg: ->allowedIncludes(['posts']).
             // This makes it easier to merge recursively later on.
             if (is_string($constraint)) {
                 $relation = $constraint;
-                $constraint = function () {};
+                $constraint = function () {
+                };
             }
 
             // However we'll allow for multiple constraints on the same relation.
