@@ -22,9 +22,11 @@ class EndpointHttpTest extends TestCase
             ->withoutExceptionHandling()
             ->getJson('/users?include=servers.databases')
             ->assertSuccessful()
-            ->assertJsonPath('0.id', $user->id)
             ->assertJsonCount(1, '0.servers')
-            ->assertJsonCount(1, '0.servers.0.databases');
+            ->assertJsonCount(1, '0.servers.0.databases')
+            ->assertJson([[
+                'id' => $user->id,
+            ]]);
     }
 
     /** @test **/
