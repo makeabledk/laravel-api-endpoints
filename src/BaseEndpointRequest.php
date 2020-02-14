@@ -2,9 +2,9 @@
 
 namespace Makeable\ApiEndpoints;
 
-use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Request;
 
-abstract class BaseEndpointRequest extends FormRequest
+abstract class BaseEndpointRequest extends Request
 {
     /**
      * @return Endpoint
@@ -12,18 +12,18 @@ abstract class BaseEndpointRequest extends FormRequest
     abstract public static function endpoint();
 
     /**
-     * @return Endpoint
+     * @return \Makeable\ApiEndpoints\Endpoint
      */
-    public function getQuery()
+    public function getEndpoint()
     {
         return static::endpoint();
     }
 
     /**
-     * @return array
+     * @return \Makeable\ApiEndpoints\QueryBuilder
      */
-    public function rules()
+    public function getQuery()
     {
-        return [];
+        return $this->getEndpoint()->toQueryBuilder();
     }
 }

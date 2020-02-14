@@ -16,15 +16,15 @@ class ServerRequest extends BaseEndpointRequest
     {
         return Endpoint::for(Server::class)
             ->allowedAppends([
-                'databases_count' => function ($query) {
-                    $query->withCount('databases');
+                'status' => function ($query) {
+                    $query->selectRaw('"active" as "status"');
                 },
             ])
             ->allowedFilters([
-                AllowedFilter::custom('favoured', ScopeFilter::make()),
+                AllowedFilter::scope('favoured'),
             ])
             ->allowedIncludes([
-                'databases',
+                'databases' => DatabaseRequest::endpoint(),
             ])
             ->defaultSort('sort_order');
     }

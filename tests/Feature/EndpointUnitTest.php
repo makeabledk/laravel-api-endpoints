@@ -1,18 +1,16 @@
 <?php
 
-namespace Makeable\ApiEndpoints\Tests\Unit;
+namespace Makeable\ApiEndpoints\Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Makeable\ApiEndpoints\Endpoint;
+use Makeable\ApiEndpoints\Tests\Stubs\Database;
 use Makeable\ApiEndpoints\Tests\Stubs\Server;
 use Makeable\ApiEndpoints\Tests\Stubs\User;
 use Makeable\ApiEndpoints\Tests\TestCase;
 
-class EndpointTest extends TestCase
+class EndpointUnitTest extends TestCase
 {
-    use RefreshDatabase;
-
     /** @test **/
     public function it_accepts_constraints_when_defining_includes()
     {
@@ -28,20 +26,46 @@ class EndpointTest extends TestCase
     public function it_adapts_namespaced_appends_and_includes_when_adding_another_endpoint()
     {
         $endpoint = Endpoint::for(User::class)
-            ->allowedAppends(['servers_count'])
+            ->allowedAppends(['full_name'])
             ->allowedIncludes([
                 'teams',
                 'servers' => Endpoint::for(Server::class)
-                    ->allowedAppends(['databases_count'])
+                    ->allowedAppends(['ip'])
                     ->allowedIncludes(['databases']),
             ]);
 
         $query = $this->request($endpoint, [
-            'append' => 'servers_count,servers.databases_count',
+            'append' => 'full_name,servers.ip',
             'include' => 'teams,servers.databases',
         ]);
 
         $this->assertArrayHasKey('teams', $query->getEagerLoads());
+        $this->assertArrayHasKey('servers', $query->getEagerLoads());
+        $this->assertArrayHasKey('servers.databases', $query->getEagerLoads());
+    }
+
+    /** @test **/
+    public function regression_it_supports_deeply_nested_endpoints()
+    {
+        $endpoint = Endpoint::for(User::class)
+            ->tap(function ($q) {})
+            ->allowedAppends('full_name')
+            ->allowedIncludes([
+                'servers' => Endpoint::for(Server::class)
+                    ->tap(function ($q) {})
+                    ->allowedAppends(['ip'])
+                    ->allowedIncludes([
+                        'databases' => Endpoint::for(Database::class)
+                            ->tap(function ($q) {})
+                            ->allowedAppends(['tables' => function ($q) {}])
+                    ]),
+            ]);
+
+        $query = $this->request($endpoint, [
+            'include' => 'servers.databases',
+            'append' => 'full_name,servers.ip,servers.databases.tables'
+        ]);
+
         $this->assertArrayHasKey('servers', $query->getEagerLoads());
         $this->assertArrayHasKey('servers.databases', $query->getEagerLoads());
     }
@@ -69,7 +93,7 @@ class EndpointTest extends TestCase
     }
 
     /** @test **/
-    public function it_doesnt_apply_relational_appends_unless_relation_is_included()
+    public function it_only_applies_relational_appends_when_relation_is_included()
     {
         $invoked = [];
 
@@ -89,15 +113,14 @@ class EndpointTest extends TestCase
     }
 
     /** @test **/
-    public function it_doesnt_apply_append_constraints_unless_appended()
+    public function it_only_applies_endpoint_append_constraints_when_appended()
     {
         $endpoint = Endpoint::for(User::class)
             ->allowedIncludes([
                 'teams', // Regular relation
-                'servers' => Endpoint::for(Server::class) // Endpoint
-                    ->allowedAppends([
-                        'is_active' => $this->invokable('Unexpected apply of server.is_active'),
-                    ]),
+                'servers' => Endpoint::for(Server::class)->allowedAppends([ // Endpoint
+                    'is_active' => $this->invokable('Unexpected apply of server.is_active'),
+                ]),
             ])
             ->allowedAppends([ // Root resource
                 'servers_count' => $this->invokable('Unexpected apply of servers_count'),
@@ -109,25 +132,27 @@ class EndpointTest extends TestCase
     }
 
     /** @test **/
-    public function a_constraint_can_be_given_on_a_non_relational_append()
+    public function any_append_may_have_a_custom_constraint_defined()
     {
         $endpoint = Endpoint::for(User::class)->allowedAppends([
-            'servers_count' => $this->invokable(),
+            'full_name' => $this->invokable(),
         ]);
 
         $this->request($endpoint, ['append' => '']); // Should not invoke constraint
 
         $this->expectInvoked();
-        $this->request($endpoint, ['append' => 'servers_count']);
+        $this->request($endpoint, ['append' => 'full_name']);
     }
 
     /** @test **/
-    public function it_applies_root_query_calls_from_nested_endpoints_on_relations()
+    public function it_applies_endpoint_taps_when_relation_is_included()
     {
         $endpoint = Endpoint::for(User::class)
             ->allowedIncludes([
                 'servers' => Endpoint::for(Server::class)->tap($this->invokable()),
             ]);
+
+        $this->request($endpoint); // not invoked
 
         $this->expectInvoked();
         $this->request($endpoint, ['include' => 'servers']);
@@ -146,6 +171,8 @@ class EndpointTest extends TestCase
         $this->request($endpoint, ['include' => 'servers_count']);
     }
 
+    // _________________________________________________________________________________________________________________
+
     protected function invokable($message = null)
     {
         return function () use ($message) {
@@ -161,7 +188,16 @@ class EndpointTest extends TestCase
 
     protected function request(Endpoint $endpoint, $data = [])
     {
-        return tap($endpoint->toQueryBuilder(Request::create('foo', 'GET', $data)))
-            ->eagerLoadRelations([]);
+        $query = $endpoint
+            ->toQueryBuilder(Request::create('foo', 'GET', $data))
+            ->applyQueuedConstraints();
+
+        // Instead of actually running eager-loads against the database
+        // we will just mock it by invoking each relational constraint.
+        foreach ($query->getEagerLoads() as $constraint) {
+            $constraint($query);
+        }
+
+        return $query;
     }
 }

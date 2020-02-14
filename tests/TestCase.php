@@ -18,8 +18,6 @@ use Spatie\QueryBuilder\QueryBuilderServiceProvider;
 
 class TestCase extends BaseTestCase
 {
-    use TestHelpers;
-
     /**
      * @return \Illuminate\Foundation\Application
      */

@@ -59,10 +59,8 @@ class Endpoint
             ->filter(function ($constraint, $relation) {
                 if ($constraint instanceof self) {
                     $this->endpoints[$relation] = $constraint;
-
                     return false;
                 }
-
                 return true;
             })
             ->pipe(Closure::fromCallable([$this, 'normalizeResources']));
@@ -121,6 +119,9 @@ class Endpoint
      */
     public function __call($method, $arguments)
     {
+        // For convenience we'll automatically convert the endpoint
+        // to a query builder instance if we detect the developer
+        // is attempting to get the results of the query.
         if (in_array($method, static::$queryBuilderGetters)) {
             return $this->toQueryBuilder()->$method(...$arguments);
         }
@@ -143,41 +144,52 @@ class Endpoint
      */
     public function toQueryBuilder(Request $request = null)
     {
-        return call_user_func([static::$queryBuilderClass, 'for'], $this->modelClass, $request)
-            ->tap(Closure::fromCallable([$this, 'applyRelations']))
-            ->tap(Closure::fromCallable([$this, 'applyQueuedCalls']));
+        $builder = call_user_func([static::$queryBuilderClass, 'for'], $this->modelClass, $request);
+
+        [$calls, $appends, $includes] = $this->getCompiledResources();
+
+        return $builder
+            ->allowedAppends($appends)
+            ->allowedIncludes($includes)
+            ->when(! empty($calls), function ($query) use ($calls) {
+                foreach ($calls as $call) {
+                    $call($query);
+                }
+            });
     }
 
     // _________________________________________________________________________________________________________________
 
     /**
-     * @param QueryBuilder $builder
+     * @return array
      */
-    protected function applyRelations(QueryBuilder $builder)
+    protected function getCompiledResources()
     {
-        [$appends, $includes] = [$this->getNamespacedResources('appends'), $this->getNamespacedResources('includes')];
+        $resources = [
+            [$this->namespace ?? '' => $this->queuedCalls], // queued calls
+            $this->getNamespacedResources('appends'), // appends
+            $this->getNamespacedResources('includes'), // includes
+        ];
 
         foreach ($this->endpoints as $name => $endpoint) {
-            $related = $endpoint->setNamespace($this->namespaced($name));
+            $endpointResources = $endpoint
+                ->setNamespace($this->namespaced($name))
+                ->getCompiledResources();
 
-            $appends = array_merge_recursive($appends, $related->getNamespacedResources('appends'));
-            $includes = array_merge_recursive($includes, $related->getNamespacedResources('includes'), [
-                $endpoint->namespace => $endpoint->queuedCalls, // Add queued calls as relation constraint
-            ]);
+            foreach ($endpointResources as $type => $resource) {
+                $resources[$type] = array_merge_recursive($resources[$type], $resource);
+            }
         }
 
-        $builder->allowedAppends($appends);
-        $builder->allowedIncludes($includes);
-    }
-
-    /**
-     * @param QueryBuilder $query
-     */
-    protected function applyQueuedCalls(QueryBuilder $query)
-    {
-        foreach ($this->queuedCalls as $call) {
-            $call($query);
+        // Finally when everything has been merged recursively, we'll take all relational queued calls
+        // and merge them into their respective 'include constraints'. We'll only keep the root
+        // constraints as 'queued calls', and return is a flat array rather than namespaced.
+        if ($this->namespace === null) {
+            $resources[2] = array_merge_recursive($resources[2], Arr::except($resources[0], ''));
+            $resources[0] = Arr::get($resources[0], '', []);
         }
+
+        return $resources;
     }
 
     /**
@@ -224,12 +236,18 @@ class Endpoint
      */
     protected function normalizeResources($resources)
     {
-        return collect($resources)->map(function ($constraint) {
-            if (! is_string($constraint)) { // Constraint is given
-                return Arr::wrap($constraint);
+        return collect($resources)->mapWithKeys(function ($constraint, $relation) {
+            // We'll ensure that a resource is always queued with a constraint
+            // - even when none was given, eg: ->allowedIncludes(['posts']).
+            // This makes it easier to merge recursively later on.
+            if (is_string($constraint)) {
+                $relation = $constraint;
+                $constraint = function () {};
             }
 
-            return $constraint; // Relation name given without constraint
+            // However we'll allow for multiple constraints on the same relation.
+            // Later on we'll apply all of the constraints into the same query.
+            return [$relation => Arr::wrap($constraint)];
         });
     }
 }

@@ -99,13 +99,27 @@ class QueryBuilder extends SpatieBuilder
      */
     public function eagerLoadRelations(array $models)
     {
+        $this->applyQueuedConstraints();
+
+        return parent::eagerLoadRelations($models);
+    }
+
+    /**
+     * Loop through the queued relational constraints and merge them into
+     * one single constraint. Then set it to Laravel's eagerLoads so it
+     * will be executed when the relation is eager-loaded.
+     *
+     * @return $this
+     */
+    public function applyQueuedConstraints()
+    {
         foreach ($this->eagerLoad as $relation => $base) {
             if (isset($this->queuedConstraints[$relation])) {
                 $this->eagerLoad[$relation] = $this->mergeConstraints($base, ...$this->queuedConstraints[$relation]);
             }
         }
 
-        return parent::eagerLoadRelations($models);
+        return $this;
     }
 
     /**
