@@ -8,6 +8,7 @@ use Makeable\ApiEndpoints\Tests\Stubs\Database;
 use Makeable\ApiEndpoints\Tests\Stubs\Server;
 use Makeable\ApiEndpoints\Tests\Stubs\User;
 use Makeable\ApiEndpoints\Tests\TestCase;
+use Spatie\QueryBuilder\Exceptions\InvalidIncludeQuery;
 
 class EndpointUnitTest extends TestCase
 {
@@ -72,6 +73,30 @@ class EndpointUnitTest extends TestCase
 
         $this->assertArrayHasKey('servers', $query->getEagerLoads());
         $this->assertArrayHasKey('servers.databases', $query->getEagerLoads());
+    }
+
+    /** @test **/
+    public function regression_it_protects_against_infinite_recursion_on_circular_referenced_endpoints()
+    {
+        $userEndpoint = Endpoint::for(User::class);
+        $serverEndpoint = Endpoint::for(Server::class)->allowedIncludes(['user' => $userEndpoint]);
+        $userEndpoint->allowedIncludes(['servers' => $serverEndpoint]);
+
+        $query = $this->request($userEndpoint, ['include' => 'servers.user.servers']);
+
+        $this->assertArrayHasKey('servers', $query->getEagerLoads());
+        $this->assertArrayHasKey('servers.user', $query->getEagerLoads());
+        $this->assertArrayHasKey('servers.user.servers', $query->getEagerLoads());
+
+        Endpoint::$maxEndpointDepth = 2;
+
+        try {
+            $this->request($userEndpoint, ['include' => 'servers.user.servers']);
+        } catch (InvalidIncludeQuery $e) {
+            Endpoint::$maxEndpointDepth = 5;
+            return ;
+        }
+        $this->assertFalse(true); // Should not get to this point
     }
 
     /** @test **/

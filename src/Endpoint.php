@@ -10,8 +10,28 @@ use Illuminate\Support\Str;
 
 class Endpoint
 {
+    /**
+     * The Spatie Query Builder implementation to be used.
+     *
+     * @var string
+     */
     public static $queryBuilderClass = QueryBuilder::class;
 
+    /**
+     * How many levels of nested endpoints should be supported.
+     * This is necessary to prevent infinite recursion
+     * if some endpoints references each other.
+     *
+     * @var int
+     */
+    public static $maxEndpointDepth = 5;
+
+    /**
+     * The eloquent query builder methods which will trigger the Endpoint
+     * to automatically convert into a QueryBuilder instance.
+     *
+     * @var array
+     */
     public static $queryBuilderGetters = [
         'chunk', 'each', 'first', 'firstOrFail', 'get', 'getQuery', 'paginate', 'simplePaginate',
     ];
@@ -164,9 +184,10 @@ class Endpoint
     // _________________________________________________________________________________________________________________
 
     /**
+     * @param  int  $depth
      * @return array
      */
-    protected function resolve()
+    protected function resolve($depth = 0)
     {
         $buffer = [
             [$this->namespace ?? '' => Arr::get($this->buffer, 'calls', [])],
@@ -174,13 +195,17 @@ class Endpoint
             $this->getNamespacedBufferContents('includes'),
         ];
 
-        foreach ($this->endpoints as $name => $endpoint) {
-            $endpointBuffer = $endpoint
-                ->setNamespace($this->namespaced($name))
-                ->resolve();
+        if ($depth < static::$maxEndpointDepth) {
+            foreach ($this->endpoints as $name => $endpoint) {
+                // Let nested endpoints resolve themselves. By cloning we'll address an odd
+                // edge case where same endpoint instances references each other circularly.
+                $endpointBuffer = (clone $endpoint)
+                    ->setNamespace($this->namespaced($name))
+                    ->resolve($depth + 1);
 
-            foreach ($endpointBuffer as $type => $contents) {
-                $buffer[$type] = array_merge_recursive($buffer[$type], $contents);
+                foreach ($endpointBuffer as $type => $contents) {
+                    $buffer[$type] = array_merge_recursive($buffer[$type], $contents);
+                }
             }
         }
 
