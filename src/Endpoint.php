@@ -10,6 +10,8 @@ use Illuminate\Support\Str;
 
 class Endpoint
 {
+    public static $queryBuilderClass = QueryBuilder::class;
+
     public static $queryBuilderGetters = [
         'chunk', 'each', 'first', 'firstOrFail', 'get', 'getQuery', 'paginate', 'simplePaginate',
     ];
@@ -127,7 +129,7 @@ class Endpoint
             // Queued calls are sometimes applied on eloquent relations as well
             // in which case we don't want to call Spatie specific methods
             // such as 'defaultSort' or 'allowedXYZ'
-            if ($query instanceof QueryBuilder || $this->isEloquentMethod($method)) {
+            if ($query instanceof static::$queryBuilderClass || $this->isEloquentMethod($method)) {
                 $query->$method(...$arguments);
             }
         });
@@ -141,7 +143,7 @@ class Endpoint
      */
     public function toQueryBuilder(Request $request = null)
     {
-        return QueryBuilder::for($this->modelClass, $request)
+        return call_user_func([static::$queryBuilderClass, 'for'], $this->modelClass, $request)
             ->tap(Closure::fromCallable([$this, 'applyRelations']))
             ->tap(Closure::fromCallable([$this, 'applyQueuedCalls']));
     }
@@ -199,7 +201,7 @@ class Endpoint
      */
     protected function isEloquentMethod($method)
     {
-        return ! collect(get_class_methods(QueryBuilder::class))
+        return ! collect(get_class_methods(static::$queryBuilderClass))
             ->flip()
             ->forget(get_class_methods(Builder::class))
             ->has($method);
