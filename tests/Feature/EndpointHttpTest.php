@@ -36,7 +36,7 @@ class EndpointHttpTest extends TestCase
             ->assertSuccessful()
             ->assertJson([[
                 'id' => $user->id,
-                'servers_count' => 2
+                'servers_count' => 2,
             ]]);
     }
 
@@ -51,8 +51,8 @@ class EndpointHttpTest extends TestCase
             ->assertJson([[
                 'id' => $user->id,
                 'servers' => [[
-                    'status' => 'active'
-                ]]
+                    'status' => 'active',
+                ]],
             ]]);
     }
 
@@ -68,7 +68,7 @@ class EndpointHttpTest extends TestCase
             ->assertJsonCount(1)
             ->assertJson([[
                 'id' => $favorite->id,
-                'is_favoured' => true
+                'is_favoured' => true,
             ]]);
     }
 }

@@ -6,7 +6,6 @@ use Faker\Generator;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Route;
-use Makeable\ApiEndpoints\Tests\Helpers\TestHelpers;
 use Makeable\ApiEndpoints\Tests\Stubs\Server;
 use Makeable\ApiEndpoints\Tests\Stubs\ServerController;
 use Makeable\ApiEndpoints\Tests\Stubs\User;
