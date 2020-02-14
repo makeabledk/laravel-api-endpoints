@@ -86,8 +86,10 @@ class Endpoint
             ->filter(function ($constraint, $relation) {
                 if ($constraint instanceof self) {
                     $this->endpoints[$relation] = $constraint;
+
                     return false;
                 }
+
                 return true;
             })
             ->pipe(Closure::fromCallable([$this, 'buildNamespacedConstraintArrays']));
@@ -125,8 +127,8 @@ class Endpoint
             // includes and check if it contains the queried relation
             if ($query instanceof QueryBuilder) {
                 $isIncluding = $query->request()->includes()->first(function ($include) use ($relation) {
-                        return Str::startsWith($include, $relation);
-                    }) !== null;
+                    return Str::startsWith($include, $relation);
+                }) !== null;
             }
             // When dealing with nested relations we will not have the
             // includes() helper at our disposal. Instead we can check
@@ -225,7 +227,7 @@ class Endpoint
     protected function namespaced($name)
     {
         return $this->namespace
-            ? $this->namespace . '.' . $name
+            ? $this->namespace.'.'.$name
             : $name;
     }
 

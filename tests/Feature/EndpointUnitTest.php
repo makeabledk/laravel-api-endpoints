@@ -48,22 +48,26 @@ class EndpointUnitTest extends TestCase
     public function regression_it_supports_deeply_nested_endpoints()
     {
         $endpoint = Endpoint::for(User::class)
-            ->tap(function ($q) {})
+            ->tap(function ($q) {
+            })
             ->allowedAppends('full_name')
             ->allowedIncludes([
                 'servers' => Endpoint::for(Server::class)
-                    ->tap(function ($q) {})
+                    ->tap(function ($q) {
+                    })
                     ->allowedAppends(['ip'])
                     ->allowedIncludes([
                         'databases' => Endpoint::for(Database::class)
-                            ->tap(function ($q) {})
-                            ->allowedAppends(['tables' => function ($q) {}])
+                            ->tap(function ($q) {
+                            })
+                            ->allowedAppends(['tables' => function ($q) {
+                            }]),
                     ]),
             ]);
 
         $query = $this->request($endpoint, [
             'include' => 'servers.databases',
-            'append' => 'full_name,servers.ip,servers.databases.tables'
+            'append' => 'full_name,servers.ip,servers.databases.tables',
         ]);
 
         $this->assertArrayHasKey('servers', $query->getEagerLoads());
