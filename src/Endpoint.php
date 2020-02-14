@@ -36,7 +36,10 @@ class Endpoint
         'chunk', 'each', 'first', 'firstOrFail', 'get', 'getQuery', 'paginate', 'simplePaginate',
     ];
 
-    protected $modelClass;
+    /**
+     * @var string
+     */
+    public $model;
 
     protected $namespace;
 
@@ -45,13 +48,21 @@ class Endpoint
     protected $endpoints = [];
 
     /**
-     * @param $modelClass
+     * @return static
+     */
+    public static function make()
+    {
+        return new static;
+    }
+
+    /**
+     * @param $model
      * @return Endpoint
      */
-    public static function for($modelClass)
+    public static function for($model)
     {
-        return tap(new static, function ($builder) use ($modelClass) {
-            $builder->modelClass = $modelClass;
+        return tap(new static, function ($endpoint) use ($model) {
+            $endpoint->model = $model;
         });
     }
 
@@ -82,6 +93,11 @@ class Endpoint
         };
 
         return $this;
+    }
+
+    public function __invoke()
+    {
+
     }
 
     /**
@@ -161,13 +177,18 @@ class Endpoint
         });
     }
 
+    public function getQuery()
+    {
+        return $this->toQueryBuilder();
+    }
+
     /**
      * @param  Request|null  $request
      * @return QueryBuilder|\Illuminate\Database\Query\Builder
      */
     public function toQueryBuilder(Request $request = null)
     {
-        $builder = call_user_func([static::$queryBuilderClass, 'for'], $this->modelClass, $request);
+        $builder = call_user_func([static::$queryBuilderClass, 'for'], $this->model, $request);
 
         [$calls, $appends, $includes] = $this->resolve();
 
@@ -187,8 +208,10 @@ class Endpoint
      * @param  int  $depth
      * @return array
      */
-    protected function resolve($depth = 0)
+    public function resolve($depth = 0)
     {
+        call_user_func($this);
+
         $buffer = [
             [$this->namespace ?? '' => Arr::get($this->buffer, 'calls', [])],
             $this->getNamespacedBufferContents('appends'),

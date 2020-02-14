@@ -3,16 +3,16 @@
 namespace Makeable\ApiEndpoints\Tests\Stubs;
 
 use Illuminate\Routing\Controller;
-use Makeable\ApiEndpoints\Tests\Stubs\Requests\UserRequest;
+use Makeable\ApiEndpoints\Tests\Stubs\Endpoints\UserEndpoint;
 
 class UserController extends Controller
 {
     /**
-     * @param UserRequest $userRequest
+     * @param UserEndpoint $userRequest
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index(UserRequest $userRequest)
+    public function index(UserEndpoint $userRequest)
     {
-        return response()->json($userRequest->getQuery()->get());
+        return response()->json($userRequest->get());
     }
 }

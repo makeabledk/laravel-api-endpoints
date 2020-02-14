@@ -1,20 +1,23 @@
 <?php
 
-namespace Makeable\ApiEndpoints\Tests\Stubs\Requests;
+namespace Makeable\ApiEndpoints\Tests\Stubs\Endpoints;
 
 use Makeable\ApiEndpoints\BaseEndpointRequest;
 use Makeable\ApiEndpoints\Endpoint;
+use Makeable\ApiEndpoints\Tests\Stubs\Endpoints\DatabaseEndpoint;
 use Makeable\ApiEndpoints\Tests\Stubs\Server;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class ServerRequest extends BaseEndpointRequest
+class ServerEndpoint extends Endpoint
 {
+    public $model = Server::class;
+
     /**
      * @return Endpoint
      */
-    public static function endpoint()
+    public function __invoke()
     {
-        return Endpoint::for(Server::class)
+        $this
             ->allowedAppends([
                 'status' => function ($query) {
                     $query->selectRaw('"active" as "status"');
@@ -24,7 +27,7 @@ class ServerRequest extends BaseEndpointRequest
                 AllowedFilter::scope('favoured'),
             ])
             ->allowedIncludes([
-                'databases' => DatabaseRequest::endpoint(),
+                'databases' => DatabaseEndpoint::make(),
             ])
             ->defaultSort('sort_order');
     }
