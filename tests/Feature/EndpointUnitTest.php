@@ -94,7 +94,8 @@ class EndpointUnitTest extends TestCase
             $this->request($userEndpoint, ['include' => 'servers.user.servers']);
         } catch (InvalidIncludeQuery $e) {
             Endpoint::$maxEndpointDepth = 5;
-            return ;
+
+            return;
         }
         $this->assertFalse(true); // Should not get to this point
     }
