@@ -80,24 +80,29 @@ class EndpointUnitTest extends TestCase
     {
         $userEndpoint = Endpoint::for(User::class);
         $serverEndpoint = Endpoint::for(Server::class)->allowedIncludes(['user' => $userEndpoint]);
+        $databaseEndpoint = Endpoint::for(Database::class)->allowedIncludes(['administrator' => $userEndpoint,'server' => $serverEndpoint,]);
+        $serverEndpoint->allowedIncludes(['databases' => $databaseEndpoint]);
         $userEndpoint->allowedIncludes(['servers' => $serverEndpoint]);
 
-        $query = $this->request($userEndpoint, ['include' => 'servers.user.servers']);
-
-        $this->assertArrayHasKey('servers', $query->getEagerLoads());
-        $this->assertArrayHasKey('servers.user', $query->getEagerLoads());
-        $this->assertArrayHasKey('servers.user.servers', $query->getEagerLoads());
-
-        Endpoint::$maxEndpointDepth = 2;
-
-        try {
+        // First and foremost, we prevent immediate circular references by checking through ancestors
+        $this->assertException(InvalidIncludeQuery::class, function () use ($userEndpoint) {
             $this->request($userEndpoint, ['include' => 'servers.user.servers']);
-        } catch (InvalidIncludeQuery $e) {
-            Endpoint::$maxEndpointDepth = 5;
+        });
 
-            return;
-        }
-        $this->assertFalse(true); // Should not get to this point
+        // This should be allowed
+        $query = $this->request($userEndpoint, ['include' => 'servers.user']);
+        $this->assertArrayHasKey('servers.user', $query->getEagerLoads());
+
+        // Next, we may have several endpoints referencing each other. These should be protected by a max depth
+        $query = $this->request($userEndpoint, ['include' => 'servers.databases.administrator.servers']);
+
+        $this->assertArrayHasKey('servers.databases.administrator.servers', $query->getEagerLoads());
+
+        Endpoint::$maxEndpointDepth = 3;
+
+        $this->assertException(InvalidIncludeQuery::class, function () use ($userEndpoint) {
+            $this->request($userEndpoint, ['include' => 'servers.databases.administrator.servers']);
+        });
     }
 
     /** @test **/
@@ -208,6 +213,17 @@ class EndpointUnitTest extends TestCase
         return function () use ($message) {
             throw new \Exception($message ?? 'invoked');
         };
+    }
+
+    protected function assertException($expected, $callable)
+    {
+        try {
+            call_user_func($callable);
+
+            $this->assertTrue(false, "No exception thrown when {$expected} was expected.");
+        } catch (\Exception $e) {
+            $this->assertInstanceOf($expected, $e);
+        }
     }
 
     protected function expectInvoked()

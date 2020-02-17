@@ -14,6 +14,7 @@ class CreateTestTables extends Migration
         Schema::create('databases', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('server_id');
+            $table->integer('administrator_id')->nullable();
             $table->timestamps();
         });
 

@@ -177,6 +177,9 @@ class Endpoint
         });
     }
 
+    /**
+     * @return \Illuminate\Database\Query\Builder|\Makeable\ApiEndpoints\QueryBuilder
+     */
     public function getQuery()
     {
         return $this->toQueryBuilder();
@@ -220,6 +223,12 @@ class Endpoint
 
         if ($depth < static::$maxEndpointDepth) {
             foreach ($this->endpoints as $name => $endpoint) {
+                // If two endpoints references each other as parent and child, it makes no sense to let these
+                // build each other for the entire allowed depth. Ie. posts.meta.posts.meta.[...]
+                if ($name === $this->getParent()) {
+                    continue;
+                }
+
                 // Let nested endpoints resolve themselves. By cloning we'll address an odd
                 // edge case where same endpoint instances references each other circularly.
                 $endpointBuffer = (clone $endpoint)
@@ -277,6 +286,16 @@ class Endpoint
         return $this->namespace
             ? $this->namespace.'.'.$name
             : $name;
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function getParent()
+    {
+        $ancestors = explode('.', $this->namespace ?? '');
+
+        return Arr::get($ancestors, count($ancestors) - 2);
     }
 
     /**

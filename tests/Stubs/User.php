@@ -7,6 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class User extends Model
 {
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function administrator()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function servers()
