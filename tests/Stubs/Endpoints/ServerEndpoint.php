@@ -2,9 +2,7 @@
 
 namespace Makeable\ApiEndpoints\Tests\Stubs\Endpoints;
 
-use Makeable\ApiEndpoints\BaseEndpointRequest;
 use Makeable\ApiEndpoints\Endpoint;
-use Makeable\ApiEndpoints\Tests\Stubs\Endpoints\DatabaseEndpoint;
 use Makeable\ApiEndpoints\Tests\Stubs\Server;
 use Spatie\QueryBuilder\AllowedFilter;
 

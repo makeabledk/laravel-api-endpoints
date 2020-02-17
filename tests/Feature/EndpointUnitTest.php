@@ -80,7 +80,7 @@ class EndpointUnitTest extends TestCase
     {
         $userEndpoint = Endpoint::for(User::class);
         $serverEndpoint = Endpoint::for(Server::class)->allowedIncludes(['user' => $userEndpoint]);
-        $databaseEndpoint = Endpoint::for(Database::class)->allowedIncludes(['administrator' => $userEndpoint,'server' => $serverEndpoint,]);
+        $databaseEndpoint = Endpoint::for(Database::class)->allowedIncludes(['administrator' => $userEndpoint, 'server' => $serverEndpoint]);
         $serverEndpoint->allowedIncludes(['databases' => $databaseEndpoint]);
         $userEndpoint->allowedIncludes(['servers' => $serverEndpoint]);
 

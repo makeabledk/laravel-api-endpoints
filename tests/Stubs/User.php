@@ -11,7 +11,7 @@ class User extends Model
      */
     public function administrator()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(self::class);
     }
 
     /**

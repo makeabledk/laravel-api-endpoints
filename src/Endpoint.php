@@ -97,7 +97,6 @@ class Endpoint
 
     public function __invoke()
     {
-
     }
 
     /**
