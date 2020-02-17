@@ -2,9 +2,7 @@
 
 namespace Makeable\ApiEndpoints\Tests\Stubs\Endpoints;
 
-use Makeable\ApiEndpoints\BaseEndpointRequest;
 use Makeable\ApiEndpoints\Endpoint;
-use Makeable\ApiEndpoints\Tests\Stubs\Endpoints\ServerEndpoint;
 use Makeable\ApiEndpoints\Tests\Stubs\User;
 
 class UserEndpoint extends Endpoint
