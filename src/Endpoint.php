@@ -2,6 +2,7 @@
 
 namespace Makeable\ApiEndpoints;
 
+use BadMethodCallException;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -174,6 +175,17 @@ class Endpoint
 
             $query->when($isIncluding, $callable);
         });
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Model
+     * @throws \Throwable
+     */
+    public function getModel()
+    {
+        throw_unless($this->model, BadMethodCallException::class, 'Missing model on endpoint: '.static::class);
+
+        return new $this->model;
     }
 
     /**
