@@ -48,6 +48,7 @@ class EndpointHttpTest extends TestCase
         $user = factory(User::class)->with(1, 'servers')->create();
 
         $this
+            ->withoutExceptionHandling()
             ->getJson('/users?include=servers&append=servers.status')
             ->assertSuccessful()
             ->assertJson([[

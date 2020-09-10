@@ -189,7 +189,7 @@ class Endpoint
     }
 
     /**
-     * @return \Illuminate\Database\Query\Builder|\Makeable\ApiEndpoints\QueryBuilder
+     * @return \Makeable\ApiEndpoints\QueryBuilder
      */
     public function getQuery()
     {
@@ -198,7 +198,7 @@ class Endpoint
 
     /**
      * @param  Request|null  $request
-     * @return QueryBuilder|\Illuminate\Database\Query\Builder
+     * @return \Makeable\ApiEndpoints\QueryBuilder
      */
     public function toQueryBuilder(Request $request = null)
     {

@@ -27,16 +27,17 @@ class TestCase extends BaseTestCase
 
         $app = require __DIR__.'/../vendor/laravel/laravel/bootstrap/app.php';
         $app->make(Kernel::class)->bootstrap();
+        $app->useDatabasePath(__DIR__.'/database');
         $app->register(QueryBuilderServiceProvider::class);
         $app->register(FactoryServiceProvider::class);
 
-        $app->afterResolving('migrator', function ($migrator) {
-            $migrator->path(__DIR__.'/migrations/');
-        });
-
+//        $app->afterResolving('migrator', function ($migrator) {
+//            $migrator->path(__DIR__.'/migrations/');
+//        });
+//
         $app['config']->set('database.default', 'sqlite');
         $app['config']->set('database.connections.sqlite.database', ':memory:');
-
+//
         $this->registerRoutes();
         $this->setupModelFactories();
 

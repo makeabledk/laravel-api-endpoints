@@ -15,6 +15,13 @@ class QueryBuilder extends SpatieBuilder
      */
     protected $queuedConstraints = [];
 
+    public function __call($name, $arguments)
+    {
+        $this->applyQueuedConstraints();
+
+        return parent::__call($name, $arguments);
+    }
+
     /**
      * @param $appends
      * @return SpatieBuilder
@@ -113,11 +120,17 @@ class QueryBuilder extends SpatieBuilder
      */
     public function applyQueuedConstraints()
     {
-        foreach ($this->eagerLoad as $relation => $base) {
+        $eagerLoad = $this->subject->getEagerLoads();
+
+        foreach ($eagerLoad as $relation => $base) {
             if (isset($this->queuedConstraints[$relation])) {
-                $this->eagerLoad[$relation] = $this->mergeConstraints($base, ...$this->queuedConstraints[$relation]);
+                $eagerLoad[$relation] = $this->mergeConstraints($base, ...$this->queuedConstraints[$relation]);
+
+                $this->queuedConstraints[$relation] = [];
             }
         }
+
+        $this->subject->setEagerLoads($eagerLoad);
 
         return $this;
     }
