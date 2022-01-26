@@ -7,7 +7,6 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Route;
 use Makeable\ApiEndpoints\Tests\Stubs\ServerController;
 use Makeable\ApiEndpoints\Tests\Stubs\UserController;
-use Makeable\LaravelFactory\FactoryServiceProvider;
 use Spatie\QueryBuilder\QueryBuilderServiceProvider;
 
 class TestCase extends BaseTestCase
