@@ -32,7 +32,7 @@ class CreateTestTables extends Migration
             $table->increments('id');
             $table->unsignedInteger('team_id')->nullable();
             $table->string('name');
-            $table->boolean('is_favoured')->nullable();
+            $table->boolean('is_favorite')->nullable();
             $table->timestamps();
         });
 

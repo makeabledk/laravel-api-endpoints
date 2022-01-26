@@ -3,9 +3,19 @@
 namespace Makeable\ApiEndpoints\Tests\Stubs;
 
 use Illuminate\Database\Eloquent\Model;
+use Makeable\ApiEndpoints\Tests\Factories\UserFactory;
+use Makeable\LaravelFactory\Factory;
+use Makeable\LaravelFactory\HasFactory;
 
 class User extends Model
 {
+    use HasFactory;
+
+    public static function newFactory(): Factory
+    {
+        return UserFactory::new();
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -20,6 +30,11 @@ class User extends Model
     public function servers()
     {
         return $this->belongsToMany(Server::class);
+    }
+
+    public function favoriteServers()
+    {
+        return $this->belongsToMany(Server::class)->favorite();
     }
 
     /**

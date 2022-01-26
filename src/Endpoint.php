@@ -152,15 +152,12 @@ class Endpoint
     public function whenIncluding($relation, $callable)
     {
         return $this->tap(function ($query) use ($relation, $callable) {
-            // Match Spatie's normalization to snake case
-            $relation = Str::camel($relation);
-
-            // The way we check for included relations depends if
-            // it is the root endpoint or a nested relationship.
+            // The way we check for included relations is dependent on whether
+            // we are in the root endpoint or a nested relationship.
 
             // When it is the root endpoint we know for sure that we have a
-            // Spatie query builder instance. Therefore we can access
-            // includes and check if it contains the queried relation
+            // Spatie query builder instance. Thus we can access includes
+            // and check if it contains the queried relation
             if ($query instanceof QueryBuilder) {
                 $isIncluding = $query->request()->includes()->first(function ($include) use ($relation) {
                     return Str::startsWith($include, $relation);
@@ -179,6 +176,7 @@ class Endpoint
 
     /**
      * @return \Illuminate\Database\Eloquent\Model
+     *
      * @throws \Throwable
      */
     public function getModel()
@@ -324,7 +322,7 @@ class Endpoint
      *     ]
      * ]
      *
-     * @param array $relations
+     * @param  array  $relations
      * @return \Illuminate\Support\Collection
      */
     protected function buildNamespacedConstraintArrays($relations)
