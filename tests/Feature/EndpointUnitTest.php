@@ -194,16 +194,29 @@ class EndpointUnitTest extends TestCase
     }
 
     /** @test **/
-    public function regression_it_invokes_when_including_on_snake_case()
+    public function it_invokes_when_including_count()
     {
         $endpoint = Endpoint::for(User::class)
-            ->allowedIncludes(['servers', 'servers_count'])
-            ->whenIncluding('servers_count', $this->invokable());
+            ->allowedIncludes(['servers', 'serversCount'])
+            ->whenIncluding('serversCount', $this->invokable());
 
         $this->request($endpoint, ['include' => 'servers']); // Should not invoke constraint
 
         $this->expectInvoked();
-        $this->request($endpoint, ['include' => 'servers_count']);
+        $this->request($endpoint, ['include' => 'serversCount']);
+    }
+
+    /** @test **/
+    public function includes_works_with_snake_case()
+    {
+        $endpoint = Endpoint::for(User::class)
+            ->allowedIncludes(['servers', 'favorite_servers'])
+            ->whenIncluding('favorite_servers', $this->invokable());
+
+        $this->request($endpoint, ['include' => 'servers']); // Should not invoke constraint
+
+        $this->expectInvoked();
+        $this->request($endpoint, ['include' => 'favorite_servers']);
     }
 
     // _________________________________________________________________________________________________________________

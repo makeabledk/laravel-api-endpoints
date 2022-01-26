@@ -22,7 +22,7 @@ class ServerEndpoint extends Endpoint
                 },
             ])
             ->allowedFilters([
-                AllowedFilter::scope('favoured'),
+                AllowedFilter::scope('favorite'),
             ])
             ->allowedIncludes([
                 'databases' => DatabaseEndpoint::make(),

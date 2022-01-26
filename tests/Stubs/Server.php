@@ -4,14 +4,24 @@ namespace Makeable\ApiEndpoints\Tests\Stubs;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Makeable\ApiEndpoints\Tests\Factories\ServerFactory;
+use Makeable\LaravelFactory\Factory;
+use Makeable\LaravelFactory\HasFactory;
 
 class Server extends Model
 {
+    use HasFactory;
+
+    public static function newFactory(): Factory
+    {
+        return ServerFactory::new();
+    }
+
     /**
      * @var array
      */
     protected $casts = [
-        'is_favoured' => 'bool',
+        'is_favorite' => 'bool',
     ];
 
     /**
@@ -34,8 +44,8 @@ class Server extends Model
      * @param  Builder  $query
      * @return Builder
      */
-    public function scopeFavoured($query)
+    public function scopeFavorite($query)
     {
-        return $query->where('is_favoured', 1);
+        return $query->where('is_favorite', 1);
     }
 }

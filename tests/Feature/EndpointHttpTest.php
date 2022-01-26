@@ -34,7 +34,9 @@ class EndpointHttpTest extends TestCase
     {
         $user = factory(User::class)->with(2, 'servers')->create();
 
-        $this->getJson('/users?include=servers_count')
+        $this
+            ->withoutExceptionHandling()
+            ->getJson('/users?include=serversCount')
             ->assertSuccessful()
             ->assertJson([[
                 'id' => $user->id,
@@ -62,16 +64,16 @@ class EndpointHttpTest extends TestCase
     /** @test */
     public function filters_may_be_applied()
     {
-        $notFavorite = factory(Server::class)->create(['is_favoured' => false]);
-        $favorite = factory(Server::class)->create(['is_favoured' => true]);
+        $notFavorite = factory(Server::class)->create(['is_favorite' => false]);
+        $favorite = factory(Server::class)->create(['is_favorite' => true]);
 
         $this
-            ->getJson('/servers?filter[favoured]=true')
+            ->getJson('/servers?filter[favorite]=true')
             ->assertSuccessful()
             ->assertJsonCount(1)
             ->assertJson([[
                 'id' => $favorite->id,
-                'is_favoured' => true,
+                'is_favorite' => true,
             ]]);
     }
 }
