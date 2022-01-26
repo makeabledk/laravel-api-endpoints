@@ -31,7 +31,7 @@ class Server extends Model
     }
 
     /**
-     * @param Builder $query
+     * @param  Builder  $query
      * @return Builder
      */
     public function scopeFavoured($query)
