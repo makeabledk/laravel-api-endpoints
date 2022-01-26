@@ -2,7 +2,7 @@
 # Laravel Api Endpoints
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/makeabledk/laravel-api-endpoints.svg?style=flat-square)](https://packagist.org/packages/makeabledk/laravel-api-endpoints)
-[![Build Status](https://img.shields.io/travis/makeabledk/laravel-api-endpoints/master.svg?style=flat-square)](https://travis-ci.org/makeabledk/laravel-api-endpoints)
+[![Build Status](https://img.shields.io/github/workflow/status/makeabledk/laravel-api-endpoints/Run%20tests?label=Tests)](https://github.com/makeabledk/laravel-api-endpoints/actions)
 [![StyleCI](https://styleci.io/repos/193651746/shield?branch=master)](https://styleci.io/repos/193651746)
 
 
