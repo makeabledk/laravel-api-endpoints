@@ -179,6 +179,7 @@ class Endpoint
 
     /**
      * @return \Illuminate\Database\Eloquent\Model
+     *
      * @throws \Throwable
      */
     public function getModel()
@@ -324,7 +325,7 @@ class Endpoint
      *     ]
      * ]
      *
-     * @param array $relations
+     * @param  array  $relations
      * @return \Illuminate\Support\Collection
      */
     protected function buildNamespacedConstraintArrays($relations)

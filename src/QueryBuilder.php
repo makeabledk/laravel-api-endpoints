@@ -51,8 +51,8 @@ class QueryBuilder extends SpatieBuilder
     /**
      * Recursively set appends on nested eloquent models.
      *
-     * @param Collection $results
-     * @param Collection|null $appends
+     * @param  Collection  $results
+     * @param  Collection|null  $appends
      * @return mixed
      */
     protected function addAppendsToResults(Collection $results, Collection $appends = null)
@@ -101,7 +101,7 @@ class QueryBuilder extends SpatieBuilder
     }
 
     /**
-     * @param array $models
+     * @param  array  $models
      * @return array
      */
     public function eagerLoadRelations(array $models)
@@ -144,7 +144,7 @@ class QueryBuilder extends SpatieBuilder
     }
 
     /**
-     * @param callable $callable
+     * @param  callable  $callable
      * @return $this|\Illuminate\Database\Query\Builder
      */
     public function tap($callable)
@@ -187,7 +187,7 @@ class QueryBuilder extends SpatieBuilder
     }
 
     /**
-     * @param mixed ...$constraints
+     * @param  mixed  ...$constraints
      * @return Closure
      */
     protected function mergeConstraints(...$constraints)

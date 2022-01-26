@@ -8,7 +8,7 @@ use Makeable\ApiEndpoints\Tests\Stubs\Endpoints\UserEndpoint;
 class UserController extends Controller
 {
     /**
-     * @param UserEndpoint $userRequest
+     * @param  UserEndpoint  $userRequest
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(UserEndpoint $userRequest)
