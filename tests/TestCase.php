@@ -5,8 +5,10 @@ namespace Makeable\ApiEndpoints\Tests;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Route;
-use Makeable\ApiEndpoints\Tests\Stubs\ServerController;
-use Makeable\ApiEndpoints\Tests\Stubs\UserController;
+use Makeable\ApiEndpoints\EndpointServiceProvider;
+use Makeable\ApiEndpoints\Tests\Stubs\Controllers\ServerController;
+use Makeable\ApiEndpoints\Tests\Stubs\Controllers\TeamController;
+use Makeable\ApiEndpoints\Tests\Stubs\Controllers\UserController;
 use Spatie\QueryBuilder\QueryBuilderServiceProvider;
 
 class TestCase extends BaseTestCase
@@ -16,16 +18,11 @@ class TestCase extends BaseTestCase
      */
     public function createApplication()
     {
-        putenv('APP_ENV=testing');
-        putenv('APP_DEBUG=true');
-
         $app = require __DIR__.'/../vendor/laravel/laravel/bootstrap/app.php';
         $app->make(Kernel::class)->bootstrap();
         $app->useDatabasePath(__DIR__.'/database');
+        $app->register(EndpointServiceProvider::class);
         $app->register(QueryBuilderServiceProvider::class);
-
-//        $app['config']->set('database.default', 'sqlite');
-//        $app['config']->set('database.connections.sqlite.database', ':memory:');
 
         $this->registerRoutes();
 
@@ -36,5 +33,6 @@ class TestCase extends BaseTestCase
     {
         Route::get('users', [UserController::class, 'index'])->name('api.users.index');
         Route::get('servers', [ServerController::class, 'index'])->name('api.servers.index');
+        Route::get('teams', [TeamController::class, 'index'])->name('api.teams.index');
     }
 }

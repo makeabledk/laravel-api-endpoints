@@ -14,6 +14,7 @@ class UserEndpoint extends Endpoint
         $this
             ->allowedIncludes([
                 'servers' => ServerEndpoint::make(),
+                'favoriteServers' => ServerEndpoint::make(),
             ]);
     }
 }

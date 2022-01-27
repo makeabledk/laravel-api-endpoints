@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Makeable\ApiEndpoints\Endpoint;
 use Makeable\ApiEndpoints\Tests\Stubs\Database;
 use Makeable\ApiEndpoints\Tests\Stubs\Server;
+use Makeable\ApiEndpoints\Tests\Stubs\Team;
 use Makeable\ApiEndpoints\Tests\Stubs\User;
 use Makeable\ApiEndpoints\Tests\TestCase;
 use Spatie\QueryBuilder\Exceptions\InvalidIncludeQuery;

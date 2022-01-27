@@ -27,5 +27,12 @@
     },
     "scripts": {
         "test": "./vendor/bin/phpunit"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Makeable\\ApiEndpoints\\EndpointServiceProvider"
+            ]
+        }
     }
 }

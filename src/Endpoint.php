@@ -11,6 +11,8 @@ use Illuminate\Support\Str;
 
 class Endpoint
 {
+    use NormalizesRelationNames;
+
     /**
      * The Spatie Query Builder implementation to be used.
      *
@@ -152,6 +154,8 @@ class Endpoint
     public function whenIncluding($relation, $callable)
     {
         return $this->tap(function ($query) use ($relation, $callable) {
+            $relation = $this->normalizeRelationName($relation);
+
             // The way we check for included relations is dependent on whether
             // we are in the root endpoint or a nested relationship.
 
@@ -337,7 +341,7 @@ class Endpoint
                 };
             }
 
-            // However we'll allow for multiple constraints on the same relation.
+            // Furthermore we'll allow for multiple constraints on the same relation.
             // Later on we'll apply all of the constraints into the same query.
             return [$relation => Arr::wrap($constraint)];
         });
