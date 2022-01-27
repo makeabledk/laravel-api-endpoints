@@ -3,7 +3,6 @@
 namespace Makeable\ApiEndpoints\Tests\Stubs;
 
 use Illuminate\Database\Eloquent\Model;
-use Makeable\ApiEndpoints\Tests\Factories\ServerFactory;
 use Makeable\ApiEndpoints\Tests\Factories\TeamFactory;
 use Makeable\LaravelFactory\Factory;
 use Makeable\LaravelFactory\HasFactory;
