@@ -4,6 +4,7 @@ namespace Makeable\ApiEndpoints\Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Makeable\ApiEndpoints\Tests\Stubs\Server;
+use Makeable\ApiEndpoints\Tests\Stubs\Team;
 use Makeable\ApiEndpoints\Tests\Stubs\User;
 use Makeable\ApiEndpoints\Tests\TestCase;
 
@@ -75,5 +76,23 @@ class EndpointHttpTest extends TestCase
                 'id' => $favorite->id,
                 'is_favorite' => true,
             ]]);
+    }
+
+    /** @test **/
+    public function it_normalizes_snake_case_to_camel_case()
+    {
+        factory(Team::class)
+            ->with(1, 'users')
+            ->with(1, 'users.servers', 'favorite')
+            ->with(1, 'users.servers.databases')
+            ->create();
+
+        $this
+            ->withoutExceptionHandling()
+            ->getJson('/teams?include=users.favorite_servers.databases')
+            ->assertSuccessful()
+            ->assertJsonCount(1)
+            ->assertJsonCount(1, '0.users.0.favorite_servers')
+            ->assertJsonCount(1, '0.users.0.favorite_servers.0.databases');
     }
 }

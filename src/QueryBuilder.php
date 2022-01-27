@@ -3,6 +3,7 @@
 namespace Makeable\ApiEndpoints;
 
 use Closure;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -10,6 +11,8 @@ use Spatie\QueryBuilder\QueryBuilder as SpatieBuilder;
 
 class QueryBuilder extends SpatieBuilder
 {
+    use NormalizesRelationNames;
+
     /**
      * @var array
      */
@@ -20,6 +23,19 @@ class QueryBuilder extends SpatieBuilder
         $this->applyQueuedConstraints();
 
         return parent::__call($name, $arguments);
+    }
+
+    /**
+     * @param  Request|null  $request
+     * @return $this
+     */
+    protected function initializeRequest(?Request $request = null): self
+    {
+        $this->request = $request
+            ? QueryBuilderRequest::fromRequest($request)
+            : app(QueryBuilderRequest::class);
+
+        return $this;
     }
 
     /**
@@ -34,13 +50,14 @@ class QueryBuilder extends SpatieBuilder
                 parent::allowedAppends($appends->keys()->all());
             })
             ->each(function ($constraints, $qualifiedField) {
+                // Support nested appends with custom constraints on the relation.
                 if ($this->request()->appends()->contains($qualifiedField)) {
                     if (($relation = $this->getNamespace($qualifiedField)) === '') {
                         // Add constraint on root appends
                         $this->tap($this->mergeConstraints(...$constraints)); // Apply constraint on this builder
                     } else {
                         // Add constraint on relational appends
-                        $this->queueConstraints([$relation => $constraints]);
+                        $this->queueConstraints([$this->normalizeRelationName($relation) => $constraints]);
                     }
                 }
             });
@@ -91,6 +108,7 @@ class QueryBuilder extends SpatieBuilder
     {
         collect($includes)
             ->mapWithKeys(Closure::fromCallable([$this, 'normalizeRelationQueries']))
+            ->mapWithKeys(fn ($constraints, $relation) => [$this->normalizeRelationName($relation) => $constraints])
             ->tap(function (Collection $includes) {
                 $this->queueConstraints($includes);
 
