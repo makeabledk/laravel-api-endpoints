@@ -26,7 +26,7 @@ class QueryBuilder extends SpatieBuilder
     }
 
     /**
-     * @param Request|null $request
+     * @param  Request|null  $request
      * @return $this
      */
     protected function initializeRequest(?Request $request = null): self
