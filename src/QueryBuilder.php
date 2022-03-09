@@ -3,6 +3,9 @@
 namespace Makeable\ApiEndpoints;
 
 use Closure;
+use Illuminate\Contracts\Pagination\CursorPaginator;
+use Illuminate\Contracts\Pagination\Paginator;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -27,7 +30,21 @@ class QueryBuilder extends SpatieBuilder
     {
         $this->applyQueuedConstraints();
 
-        return parent::__call($name, $arguments);
+        $result = parent::__call($name, $arguments);
+
+        if ($result instanceof Model) {
+            $this->addAppendsToResults(collect([$result]));
+        }
+
+        if ($result instanceof Collection) {
+            $this->addAppendsToResults($result);
+        }
+
+        if ($result instanceof Paginator || $result instanceof CursorPaginator) {
+            $this->addAppendsToResults(collect($result->items()));
+        }
+
+        return $result;
     }
 
     /**

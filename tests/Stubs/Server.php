@@ -48,4 +48,9 @@ class Server extends Model
     {
         return $query->where('is_favorite', 1);
     }
+
+    public function getInternalIpAttribute()
+    {
+        return '127.0.0.1';
+    }
 }

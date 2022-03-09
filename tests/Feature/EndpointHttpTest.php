@@ -46,6 +46,21 @@ class EndpointHttpTest extends TestCase
     }
 
     /** @test **/
+    public function it_appends_attributes()
+    {
+        $server = factory(Server::class)->create();
+
+        $this
+            ->withoutExceptionHandling()
+            ->getJson('/servers?append=internal_ip')
+            ->assertSuccessful()
+            ->assertJson([[
+                'id' => $server->id,
+                'internal_ip' => '127.0.0.1'
+            ]]);
+    }
+
+    /** @test **/
     public function it_accepts_custom_queries_for_appends()
     {
         $user = factory(User::class)->with(1, 'servers')->create();
