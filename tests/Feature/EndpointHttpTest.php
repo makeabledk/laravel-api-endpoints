@@ -56,7 +56,7 @@ class EndpointHttpTest extends TestCase
             ->assertSuccessful()
             ->assertJson([[
                 'id' => $server->id,
-                'internal_ip' => '127.0.0.1'
+                'internal_ip' => '127.0.0.1',
             ]]);
     }
 
