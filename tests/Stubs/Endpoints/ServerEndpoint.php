@@ -20,7 +20,7 @@ class ServerEndpoint extends Endpoint
                 'status' => function ($query) {
                     $query->selectRaw('"active" as "status"');
                 },
-                'internal_ip'
+                'internal_ip',
             ])
             ->allowedFilters([
                 AllowedFilter::scope('favorite'),
