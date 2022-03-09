@@ -4,6 +4,7 @@ namespace Makeable\ApiEndpoints;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Makeable\ApiEndpoints\Concerns\NormalizesRelationNames;
 
 class QueryBuilderRequest extends \Spatie\QueryBuilder\QueryBuilderRequest
 {

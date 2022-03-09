@@ -7,11 +7,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Makeable\ApiEndpoints\Concerns\AddsAppendsToQuery;
+use Makeable\ApiEndpoints\Concerns\NormalizesRelationNames;
 use Spatie\QueryBuilder\QueryBuilder as SpatieBuilder;
 
 class QueryBuilder extends SpatieBuilder
 {
-    use NormalizesRelationNames;
+    use AddsAppendsToQuery,
+        NormalizesRelationNames {
+        allowedAppends as originalAllowedAppends;
+    }
 
     /**
      * @var array
@@ -47,7 +52,7 @@ class QueryBuilder extends SpatieBuilder
         collect($appends)
             ->mapWithKeys(Closure::fromCallable([$this, 'normalizeRelationQueries']))
             ->tap(function (Collection $appends) {
-                parent::allowedAppends($appends->keys()->all());
+                $this->originalAllowedAppends($appends->keys()->all());
             })
             ->each(function ($constraints, $qualifiedField) {
                 // Support nested appends with custom constraints on the relation.

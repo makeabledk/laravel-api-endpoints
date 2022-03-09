@@ -1,6 +1,6 @@
 <?php
 
-namespace Makeable\ApiEndpoints;
+namespace Makeable\ApiEndpoints\Concerns;
 
 use Illuminate\Support\Str;
 
