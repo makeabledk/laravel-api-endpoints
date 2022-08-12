@@ -49,9 +49,9 @@ class QueryBuilder extends SpatieBuilder
 
     /**
      * @param  Request|null  $request
-     * @return $this
+     * @return QueryBuilder
      */
-    protected function initializeRequest(?Request $request = null): self
+    protected function initializeRequest(?Request $request = null): static
     {
         $this->request = $request
             ? QueryBuilderRequest::fromRequest($request)
@@ -62,9 +62,9 @@ class QueryBuilder extends SpatieBuilder
 
     /**
      * @param $appends
-     * @return SpatieBuilder
+     * @return QueryBuilder
      */
-    public function allowedAppends($appends): SpatieBuilder
+    public function allowedAppends($appends): static
     {
         collect($appends)
             ->mapWithKeys(Closure::fromCallable([$this, 'normalizeRelationQueries']))
@@ -124,9 +124,9 @@ class QueryBuilder extends SpatieBuilder
 
     /**
      * @param $includes
-     * @return SpatieBuilder
+     * @return QueryBuilder
      */
-    public function allowedIncludes($includes): SpatieBuilder
+    public function allowedIncludes($includes): static
     {
         collect($includes)
             ->mapWithKeys(Closure::fromCallable([$this, 'normalizeRelationQueries']))
@@ -156,9 +156,9 @@ class QueryBuilder extends SpatieBuilder
      * one single constraint. Then set it to Laravel's eagerLoads so it
      * will be executed when the relation is eager-loaded.
      *
-     * @return $this
+     * @return QueryBuilder
      */
-    public function applyQueuedConstraints()
+    public function applyQueuedConstraints(): static
     {
         $eagerLoad = $this->subject->getEagerLoads();
 
@@ -185,9 +185,9 @@ class QueryBuilder extends SpatieBuilder
 
     /**
      * @param  callable  $callable
-     * @return $this|\Illuminate\Database\Query\Builder
+     * @return QueryBuilder
      */
-    public function tap($callable)
+    public function tap($callable): static
     {
         call_user_func($callable, $this);
 
@@ -212,9 +212,9 @@ class QueryBuilder extends SpatieBuilder
 
     /**
      * @param $relations
-     * @return $this
+     * @return QueryBuilder
      */
-    protected function queueConstraints($relations)
+    protected function queueConstraints($relations): static
     {
         $this->queuedConstraints = array_merge_recursive(
             $this->queuedConstraints,
@@ -230,7 +230,7 @@ class QueryBuilder extends SpatieBuilder
      * @param  mixed  ...$constraints
      * @return Closure
      */
-    protected function mergeConstraints(...$constraints)
+    protected function mergeConstraints(...$constraints): Closure
     {
         return function ($query) use ($constraints) {
             foreach ($constraints as $constraint) {
@@ -244,7 +244,7 @@ class QueryBuilder extends SpatieBuilder
      * @param $relation
      * @return array
      */
-    protected function normalizeRelationQueries($constraints, $relation)
+    protected function normalizeRelationQueries($constraints, $relation): array
     {
         if (is_numeric($relation)) {
             [$constraints, $relation] = [[], $constraints];
