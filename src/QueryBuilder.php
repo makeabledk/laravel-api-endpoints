@@ -18,8 +18,8 @@ class QueryBuilder extends SpatieBuilder
 {
     use AddsAppendsToQuery,
         NormalizesRelationNames {
-        allowedAppends as originalAllowedAppends;
-    }
+            allowedAppends as originalAllowedAppends;
+        }
 
     /**
      * @var array
@@ -61,7 +61,7 @@ class QueryBuilder extends SpatieBuilder
     }
 
     /**
-     * @param $appends
+     * @param  $appends
      * @return QueryBuilder
      */
     public function allowedAppends($appends): static
@@ -123,7 +123,7 @@ class QueryBuilder extends SpatieBuilder
     }
 
     /**
-     * @param $includes
+     * @param  $includes
      * @return QueryBuilder
      */
     public function allowedIncludes($includes): static
@@ -195,7 +195,7 @@ class QueryBuilder extends SpatieBuilder
     }
 
     /**
-     * @param $string
+     * @param  $string
      * @return string
      */
     protected function getNamespace($string)
@@ -211,7 +211,7 @@ class QueryBuilder extends SpatieBuilder
     }
 
     /**
-     * @param $relations
+     * @param  $relations
      * @return QueryBuilder
      */
     protected function queueConstraints($relations): static
@@ -240,8 +240,8 @@ class QueryBuilder extends SpatieBuilder
     }
 
     /**
-     * @param $constraints
-     * @param $relation
+     * @param  $constraints
+     * @param  $relation
      * @return array
      */
     protected function normalizeRelationQueries($constraints, $relation): array

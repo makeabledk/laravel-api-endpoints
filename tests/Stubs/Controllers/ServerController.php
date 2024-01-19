@@ -5,6 +5,7 @@ namespace Makeable\ApiEndpoints\Tests\Stubs\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
 use Makeable\ApiEndpoints\Tests\Stubs\Endpoints\ServerEndpoint;
+
 use function response;
 
 class ServerController extends Controller
