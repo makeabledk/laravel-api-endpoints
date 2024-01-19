@@ -60,7 +60,7 @@ class Endpoint
     }
 
     /**
-     * @param $model
+     * @param  $model
      * @return Endpoint
      */
     public static function for($model)
@@ -71,8 +71,8 @@ class Endpoint
     }
 
     /**
-     * @param $method
-     * @param $arguments
+     * @param  $method
+     * @param  $arguments
      * @return Endpoint
      */
     public function __call($method, $arguments)
@@ -104,7 +104,7 @@ class Endpoint
     }
 
     /**
-     * @param $appends
+     * @param  $appends
      * @return Endpoint
      */
     public function allowedAppends($appends)
@@ -116,7 +116,7 @@ class Endpoint
     }
 
     /**
-     * @param $includes
+     * @param  $includes
      * @return Endpoint
      */
     public function allowedIncludes($includes)
@@ -137,7 +137,7 @@ class Endpoint
     }
 
     /**
-     * @param $namespace
+     * @param  $namespace
      * @return Endpoint
      */
     public function setNamespace($namespace)
@@ -148,8 +148,8 @@ class Endpoint
     }
 
     /**
-     * @param $relation
-     * @param $callable
+     * @param  $relation
+     * @param  $callable
      * @return mixed|QueryBuilder
      */
     public function whenIncluding($relation, $callable)
@@ -280,7 +280,7 @@ class Endpoint
     }
 
     /**
-     * @param $method
+     * @param  $method
      * @return bool
      */
     protected function isEloquentMethod($method)
@@ -292,7 +292,7 @@ class Endpoint
     }
 
     /**
-     * @param $name
+     * @param  $name
      * @return string
      */
     protected function namespaced($name)
