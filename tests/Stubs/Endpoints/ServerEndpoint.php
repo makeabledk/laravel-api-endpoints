@@ -10,9 +10,6 @@ class ServerEndpoint extends Endpoint
 {
     public $model = Server::class;
 
-    /**
-     * @return Endpoint
-     */
     public function __invoke()
     {
         $this

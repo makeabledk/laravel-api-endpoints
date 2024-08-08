@@ -115,7 +115,7 @@ class QueryBuilder extends SpatieBuilder
         return $results->each(function ($model) use ($rootAppends, $namespacedAppends) {
             $namespacedAppends->each(function ($appends, $relation) use ($model) {
                 if ($model->relationLoaded($relation)) {
-                    $this->addAppendsToResults($model->{$relation}, collect($appends));
+                    $this->addAppendsToResults(Collection::wrap($model->{$relation}), collect($appends));
                 }
             });
             $model->append($rootAppends->toArray());
