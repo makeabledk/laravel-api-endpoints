@@ -129,7 +129,7 @@ class EndpointHttpTest extends TestCase
                         'id' => $server->id,
                         'internal_ip' => '127.0.0.1',
                     ],
-                ]]
+                ]],
             ]]);
     }
 }
