@@ -110,4 +110,26 @@ class EndpointHttpTest extends TestCase
             ->assertJsonCount(1, '0.users.0.favorite_servers')
             ->assertJsonCount(1, '0.users.0.favorite_servers.0.databases');
     }
+
+    /** @test **/
+    public function it_supports_circular_includes()
+    {
+        $server = factory(Server::class)
+            ->with(1, 'databases')
+            ->create();
+
+        $this
+            ->withoutExceptionHandling()
+            ->getJson('/servers?include=databases.server&append=databases.server.internal_ip')
+            ->assertSuccessful()
+            ->assertJson([[
+                'id' => $server->id,
+                'databases' => [[
+                    'server' => [
+                        'id' => $server->id,
+                        'internal_ip' => '127.0.0.1',
+                    ],
+                ]],
+            ]]);
+    }
 }
