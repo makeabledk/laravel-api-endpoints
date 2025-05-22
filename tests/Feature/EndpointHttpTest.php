@@ -132,4 +132,27 @@ class EndpointHttpTest extends TestCase
                 ]],
             ]]);
     }
+
+    /** @test **/
+    public function it_supports_allowed_includes_syntax()
+    {
+
+        $server = factory(User::class)
+            ->with(1, 'teams')
+            ->create();
+
+        $this
+            ->withoutExceptionHandling()
+            ->getJson('/servers?include=databases.server&append=databases.server.internal_ip')
+            ->assertSuccessful()
+            ->assertJson([[
+                'id' => $server->id,
+                'databases' => [[
+                    'server' => [
+                        'id' => $server->id,
+                        'internal_ip' => '127.0.0.1',
+                    ],
+                ]],
+            ]]);
+    }
 }
