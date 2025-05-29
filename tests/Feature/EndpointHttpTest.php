@@ -12,8 +12,7 @@ class EndpointHttpTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function it_can_load_model_with_nested_endpoint_relations()
+    public function test_it_can_load_model_with_nested_endpoint_relations()
     {
         $user = factory(User::class)
             ->with(1, 'servers.databases')
@@ -30,8 +29,7 @@ class EndpointHttpTest extends TestCase
             ]]);
     }
 
-    /** @test **/
-    public function any_allowed_relation_is_also_countable()
+    public function test_any_allowed_relation_is_also_countable()
     {
         $user = factory(User::class)->with(2, 'servers')->create();
 
@@ -45,8 +43,7 @@ class EndpointHttpTest extends TestCase
             ]]);
     }
 
-    /** @test **/
-    public function it_appends_attributes()
+    public function test_it_appends_attributes()
     {
         $server = factory(Server::class)->create();
 
@@ -60,8 +57,7 @@ class EndpointHttpTest extends TestCase
             ]]);
     }
 
-    /** @test **/
-    public function it_accepts_custom_queries_for_appends()
+    public function test_it_accepts_custom_queries_for_appends()
     {
         $user = factory(User::class)->with(1, 'servers')->create();
 
@@ -77,8 +73,7 @@ class EndpointHttpTest extends TestCase
             ]]);
     }
 
-    /** @test */
-    public function filters_may_be_applied()
+    public function test_filters_may_be_applied()
     {
         $notFavorite = factory(Server::class)->create(['is_favorite' => false]);
         $favorite = factory(Server::class)->create(['is_favorite' => true]);
@@ -93,8 +88,7 @@ class EndpointHttpTest extends TestCase
             ]]);
     }
 
-    /** @test **/
-    public function it_normalizes_snake_case_to_camel_case()
+    public function test_it_normalizes_snake_case_to_camel_case()
     {
         factory(Team::class)
             ->with(1, 'users')
@@ -111,8 +105,7 @@ class EndpointHttpTest extends TestCase
             ->assertJsonCount(1, '0.users.0.favorite_servers.0.databases');
     }
 
-    /** @test **/
-    public function it_supports_circular_includes()
+    public function test_it_supports_circular_includes()
     {
         $server = factory(Server::class)
             ->with(1, 'databases')
@@ -132,4 +125,24 @@ class EndpointHttpTest extends TestCase
                 ]],
             ]]);
     }
+
+//    Currently not working as intended
+//    public function test_it_supports_allowed_includes_syntax()
+//    {
+//        $server = factory(Server::class)
+//            ->with(1, 'users.teams')
+//            ->create();
+//
+//        $this
+//            ->withoutExceptionHandling()
+//            ->getJson('/servers?include=users.teams,users.teams_count')
+//            ->assertSuccessful()
+//            ->assertJson([[
+//                'id' => $server->id,
+//                'users' => [[
+//                    'teams' => [
+//                    ],
+//                ]],
+//            ]]);
+//    }
 }
