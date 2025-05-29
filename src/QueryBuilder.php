@@ -27,7 +27,7 @@ class QueryBuilder extends SpatieBuilder
     public function __construct(
         protected Relation|EloquentBuilder $subject,
         ?Request $request = null
-    )  {
+    ) {
         $this->request = $request
             ? QueryBuilderRequest::fromRequest($request)
             : app(QueryBuilderRequest::class);
@@ -93,7 +93,7 @@ class QueryBuilder extends SpatieBuilder
      * @param  Collection|null  $appends
      * @return mixed
      */
-    protected function addAppendsToResults(Collection $results, Collection $appends = null)
+    protected function addAppendsToResults(Collection $results, ?Collection $appends = null)
     {
         $appends = collect($appends ?: $this->request->appends());
 

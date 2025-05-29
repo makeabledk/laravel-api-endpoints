@@ -16,8 +16,8 @@ class UserEndpoint extends Endpoint
             ->allowedIncludes([
                 'servers' => ServerEndpoint::make(),
                 'favoriteServers' => ServerEndpoint::make(),
-// Newer Spatie syntax is currently not supported.
-//                AllowedInclude::relationship('teams'),
+                // Newer Spatie syntax is currently not supported.
+                //                AllowedInclude::relationship('teams'),
             ]);
     }
 }

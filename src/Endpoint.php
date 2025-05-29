@@ -205,7 +205,7 @@ class Endpoint
      * @param  Request|null  $request
      * @return \Makeable\ApiEndpoints\QueryBuilder
      */
-    public function toQueryBuilder(Request $request = null)
+    public function toQueryBuilder(?Request $request = null)
     {
         $builder = call_user_func([static::$queryBuilderClass, 'for'], $this->model, $request);
 
