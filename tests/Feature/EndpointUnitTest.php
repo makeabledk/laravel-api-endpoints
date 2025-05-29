@@ -12,8 +12,7 @@ use Spatie\QueryBuilder\Exceptions\InvalidIncludeQuery;
 
 class EndpointUnitTest extends TestCase
 {
-    /** @test **/
-    public function it_accepts_constraints_when_defining_includes()
+    public function test_it_accepts_constraints_when_defining_includes()
     {
         $endpoint = Endpoint::for(User::class)->allowedIncludes([
             'servers' => $this->invokable(),
@@ -23,8 +22,7 @@ class EndpointUnitTest extends TestCase
         $this->request($endpoint, ['include' => 'servers']);
     }
 
-    /** @test **/
-    public function it_adapts_namespaced_appends_and_includes_when_adding_another_endpoint()
+    public function test_it_adapts_namespaced_appends_and_includes_when_adding_another_endpoint()
     {
         $endpoint = Endpoint::for(User::class)
             ->allowedAppends(['full_name'])
@@ -45,8 +43,7 @@ class EndpointUnitTest extends TestCase
         $this->assertArrayHasKey('servers.databases', $query->getEagerLoads());
     }
 
-    /** @test **/
-    public function regression_it_supports_deeply_nested_endpoints()
+    public function test_regression_it_supports_deeply_nested_endpoints()
     {
         $endpoint = Endpoint::for(User::class)
             ->tap(function ($q) {
@@ -75,8 +72,7 @@ class EndpointUnitTest extends TestCase
         $this->assertArrayHasKey('servers.databases', $query->getEagerLoads());
     }
 
-    /** @test **/
-    public function regression_it_protects_against_infinite_recursion_on_circular_referenced_endpoints()
+    public function test_regression_it_protects_against_infinite_recursion_on_circular_referenced_endpoints()
     {
         $userEndpoint = Endpoint::for(User::class);
         $serverEndpoint = Endpoint::for(Server::class)->allowedIncludes(['user' => $userEndpoint]);
@@ -105,8 +101,7 @@ class EndpointUnitTest extends TestCase
         });
     }
 
-    /** @test **/
-    public function it_merges_relational_append_constraints_into_include_constraints()
+    public function test_it_merges_relational_append_constraints_into_include_constraints()
     {
         $invoked = [];
 
@@ -127,8 +122,7 @@ class EndpointUnitTest extends TestCase
         $this->assertArrayHasKey('includes', $invoked);
     }
 
-    /** @test **/
-    public function it_only_applies_relational_appends_when_relation_is_included()
+    public function test_it_only_applies_relational_appends_when_relation_is_included()
     {
         $invoked = [];
 
@@ -147,8 +141,7 @@ class EndpointUnitTest extends TestCase
         $this->assertEquals([], $invoked);
     }
 
-    /** @test **/
-    public function it_only_applies_endpoint_append_constraints_when_appended()
+    public function test_it_only_applies_endpoint_append_constraints_when_appended()
     {
         $endpoint = Endpoint::for(User::class)
             ->allowedIncludes([
@@ -166,8 +159,7 @@ class EndpointUnitTest extends TestCase
         $this->assertTrue(true); // If reached this point without exceptions, we've succeeded
     }
 
-    /** @test **/
-    public function any_append_may_have_a_custom_constraint_defined()
+    public function test_any_append_may_have_a_custom_constraint_defined()
     {
         $endpoint = Endpoint::for(User::class)->allowedAppends([
             'full_name' => $this->invokable(),
@@ -179,8 +171,7 @@ class EndpointUnitTest extends TestCase
         $this->request($endpoint, ['append' => 'full_name']);
     }
 
-    /** @test **/
-    public function it_applies_endpoint_taps_when_relation_is_included()
+    public function test_it_applies_endpoint_taps_when_relation_is_included()
     {
         $endpoint = Endpoint::for(User::class)
             ->allowedIncludes([
@@ -193,8 +184,7 @@ class EndpointUnitTest extends TestCase
         $this->request($endpoint, ['include' => 'servers']);
     }
 
-    /** @test **/
-    public function it_invokes_when_including_count()
+    public function test_it_invokes_when_including_count()
     {
         $endpoint = Endpoint::for(User::class)
             ->allowedIncludes(['servers', 'serversCount'])
@@ -206,8 +196,7 @@ class EndpointUnitTest extends TestCase
         $this->request($endpoint, ['include' => 'serversCount']);
     }
 
-    /** @test **/
-    public function includes_works_with_snake_case()
+    public function test_includes_works_with_snake_case()
     {
         $endpoint = Endpoint::for(User::class)
             ->allowedIncludes(['servers', 'favorite_servers'])
