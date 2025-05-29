@@ -24,6 +24,7 @@ class ServerEndpoint extends Endpoint
             ])
             ->allowedIncludes([
                 'databases' => DatabaseEndpoint::make(),
+                'users' => UserEndpoint::make(),
             ])
             ->defaultSort('sort_order');
     }

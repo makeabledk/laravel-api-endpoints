@@ -7,8 +7,10 @@ use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Makeable\ApiEndpoints\Concerns\NormalizesRelationNames;
+use Spatie\QueryBuilder\AllowedInclude;
 
 class Endpoint
 {
@@ -203,7 +205,7 @@ class Endpoint
      * @param  Request|null  $request
      * @return \Makeable\ApiEndpoints\QueryBuilder
      */
-    public function toQueryBuilder(Request $request = null)
+    public function toQueryBuilder(?Request $request = null)
     {
         $builder = call_user_func([static::$queryBuilderClass, 'for'], $this->model, $request);
 
@@ -341,6 +343,9 @@ class Endpoint
                 $constraint = function () {
                 };
             }
+
+            // NOTE: In order to support AllowedInclude::relationship() we'd need to do
+            // additional normalization here since it returns a Collection of AllowedInclude.
 
             // Furthermore we'll allow for multiple constraints on the same relation.
             // Later on we'll apply all of the constraints into the same query.
