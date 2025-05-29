@@ -5,13 +5,16 @@ namespace Makeable\ApiEndpoints;
 use Closure;
 use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Contracts\Pagination\Paginator;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Makeable\ApiEndpoints\Concerns\AddsAppendsToQuery;
 use Makeable\ApiEndpoints\Concerns\NormalizesRelationNames;
+use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\QueryBuilder as SpatieBuilder;
 
 class QueryBuilder extends SpatieBuilder
@@ -20,6 +23,15 @@ class QueryBuilder extends SpatieBuilder
         NormalizesRelationNames {
             allowedAppends as originalAllowedAppends;
         }
+
+    public function __construct(
+        protected Relation|EloquentBuilder $subject,
+        ?Request $request = null
+    )  {
+        $this->request = $request
+            ? QueryBuilderRequest::fromRequest($request)
+            : app(QueryBuilderRequest::class);
+    }
 
     /**
      * @var array
@@ -48,26 +60,13 @@ class QueryBuilder extends SpatieBuilder
     }
 
     /**
-     * @param  Request|null  $request
-     * @return QueryBuilder
-     */
-    protected function initializeRequest(?Request $request = null): static
-    {
-        $this->request = $request
-            ? QueryBuilderRequest::fromRequest($request)
-            : app(QueryBuilderRequest::class);
-
-        return $this;
-    }
-
-    /**
      * @param  $appends
      * @return QueryBuilder
      */
     public function allowedAppends($appends): static
     {
         collect($appends)
-            ->mapWithKeys(Closure::fromCallable([$this, 'normalizeRelationQueries']))
+            ->flatMap(fn ($constraints, $relation) => $this->normalizeRelationQueries($constraints, $relation))
             ->tap(function (Collection $appends) {
                 $this->originalAllowedAppends($appends->keys()->all());
             })
@@ -129,7 +128,7 @@ class QueryBuilder extends SpatieBuilder
     public function allowedIncludes($includes): static
     {
         collect($includes)
-            ->mapWithKeys(Closure::fromCallable([$this, 'normalizeRelationQueries']))
+            ->flatMap(fn ($constraints, $relation) => $this->normalizeRelationQueries($constraints, $relation))
             ->mapWithKeys(fn ($constraints, $relation) => [$this->normalizeRelationName($relation) => $constraints])
             ->tap(function (Collection $includes) {
                 $this->queueConstraints($includes);
@@ -244,12 +243,20 @@ class QueryBuilder extends SpatieBuilder
      * @param  $relation
      * @return array
      */
-    protected function normalizeRelationQueries($constraints, $relation): array
+    protected function normalizeRelationQueries($constraints, $relation): Collection
     {
-        if (is_numeric($relation)) {
+//        Currently not working as intended
+//        // Support AllowedInclude::relationship() which returns a Collection of AllowedInclude
+//        if (is_numeric($relation) && is_array($constraints) && count($constraints) === 1 && $constraints[0] instanceof Collection) {
+//            return $constraints[0]->mapWithKeys(function (AllowedInclude $include) {
+//                return [$include->getName() => [fn ($query) => $include->include($query)]];
+//            });
+//        }
+
+        if (is_numeric($relation) && is_string($constraints)) {
             [$constraints, $relation] = [[], $constraints];
         }
 
-        return [$relation => $constraints];
+        return collect([$relation => $constraints]);
     }
 }
