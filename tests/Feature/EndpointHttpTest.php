@@ -136,7 +136,6 @@ class EndpointHttpTest extends TestCase
     /** @test **/
     public function it_supports_allowed_includes_syntax()
     {
-
         $server = factory(User::class)
             ->with(1, 'teams')
             ->create();

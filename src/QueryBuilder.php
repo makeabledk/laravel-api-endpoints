@@ -94,7 +94,7 @@ class QueryBuilder extends SpatieBuilder
      * @param  Collection|null  $appends
      * @return mixed
      */
-    protected function addAppendsToResults(Collection $results, Collection $appends = null)
+    protected function addAppendsToResults(Collection $results, ?Collection $appends = null)
     {
         $appends = collect($appends ?: $this->request->appends());
 

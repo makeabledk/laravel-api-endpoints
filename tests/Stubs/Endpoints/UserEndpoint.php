@@ -15,7 +15,7 @@ class UserEndpoint extends Endpoint
         $this
             ->allowedIncludes([
                 'servers' => ServerEndpoint::make(),
-//                'serversCount' => AllowedInclude::count('servers'),
+                //                'serversCount' => AllowedInclude::count('servers'),
                 'favoriteServers' => ServerEndpoint::make(),
                 AllowedInclude::relationship('teams'),
             ]);
