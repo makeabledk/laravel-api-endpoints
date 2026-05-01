@@ -38,7 +38,7 @@ class QueryBuilder extends SpatieBuilder
      */
     protected $queuedConstraints = [];
 
-    public function __call($name, $arguments)
+    public function __call($name, $arguments): mixed
     {
         $this->applyQueuedConstraints();
 
@@ -86,6 +86,16 @@ class QueryBuilder extends SpatieBuilder
         return $this;
     }
 
+    public function allowedFields(...$fields): static
+    {
+        return parent::allowedFields(...$this->normalizeVariadicArguments($fields));
+    }
+
+    public function allowedFilters(...$filters): static
+    {
+        return parent::allowedFilters(...$this->normalizeVariadicArguments($filters));
+    }
+
     /**
      * Recursively set appends on nested eloquent models.
      *
@@ -125,18 +135,37 @@ class QueryBuilder extends SpatieBuilder
      * @param  $includes
      * @return QueryBuilder
      */
-    public function allowedIncludes($includes): static
+    public function allowedIncludes(...$includes): static
     {
+        $includes = count($includes) === 1 && is_array($includes[0])
+            ? $includes[0]
+            : $includes;
+
         collect($includes)
             ->flatMap(fn ($constraints, $relation) => $this->normalizeRelationQueries($constraints, $relation))
             ->mapWithKeys(fn ($constraints, $relation) => [$this->normalizeRelationName($relation) => $constraints])
             ->tap(function (Collection $includes) {
                 $this->queueConstraints($includes);
 
-                parent::allowedIncludes($includes->keys()->all());
+                parent::allowedIncludes(...$includes->keys()->all());
             });
 
         return $this;
+    }
+
+    public function allowedSorts(...$sorts): static
+    {
+        return parent::allowedSorts(...$this->normalizeVariadicArguments($sorts));
+    }
+
+    public function defaultSort(...$sorts): static
+    {
+        return parent::defaultSort(...$this->normalizeVariadicArguments($sorts));
+    }
+
+    public function defaultSorts(...$sorts): static
+    {
+        return parent::defaultSorts(...$this->normalizeVariadicArguments($sorts));
     }
 
     /**
@@ -236,6 +265,15 @@ class QueryBuilder extends SpatieBuilder
                 $constraint($query);
             }
         };
+    }
+
+    protected function normalizeVariadicArguments(array $arguments): array
+    {
+        if (count($arguments) === 1 && is_array($arguments[0])) {
+            return array_values($arguments[0]);
+        }
+
+        return $arguments;
     }
 
     /**
