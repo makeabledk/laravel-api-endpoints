@@ -10,7 +10,7 @@ class QueryBuilderRequest extends \Spatie\QueryBuilder\QueryBuilderRequest
 {
     use NormalizesRelationNames;
 
-    public static function fromRequest(Request $request): self
+    public static function fromRequest(Request $request): static
     {
         return static::createFrom($request, new static());
     }
